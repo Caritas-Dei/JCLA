@@ -106,25 +106,25 @@ public class Test {
 				"\n" +
 				"}\n";
 
-//		warmup(input);
+		warmup(input);
 		LexicalAnalyzer analyzer = new LexicalAnalyzer();
-//		long            start, end, delta, avg = 0;
-//		start = System.nanoTime();
+		long            start, end, delta, avg = 0;
+		start = System.nanoTime();
 		List<Token> result = analyzer.analyze(input);
-//		end = System.nanoTime();
-//		delta = end - start;
-//		avg = delta;
+		end = System.nanoTime();
+		delta = end - start;
+		avg = delta;
 
-//		for (int i = 0; i < 50_000; i++) {
-//			start = System.nanoTime();
-//			analyzer.analyze(input);
-//			end = System.nanoTime();
-//			delta = end - start;
-//			avg = (avg + delta) / 2;
-//		}
+		for (int i = 0; i < 50_000; i++) {
+			start = System.nanoTime();
+			analyzer.analyze(input);
+			end = System.nanoTime();
+			delta = end - start;
+			avg = (avg + delta) / 2;
+		}
 
 		printf(result);
-//		printf("Time (ms, ns): " + avg / 1_000_000 + ", " + avg);
+		printf("Time (ms, ns): " + avg / 1_000_000 + ", " + avg);
 	}
 
 	private static void warmup(String input) {
