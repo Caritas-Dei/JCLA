@@ -1,0 +1,9 @@
+#gitignore global
+# Java
+out
+
+#IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
