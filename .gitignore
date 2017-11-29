@@ -3,7 +3,13 @@
 out
 
 #IntelliJ IDEA
+
+// .idea directory
 .idea/**
+.idea/
+
+
+# file-based projects
 *.iml
 *.ipr
 *.iws
