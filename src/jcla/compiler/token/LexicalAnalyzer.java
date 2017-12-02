@@ -1,6 +1,7 @@
 package jcla.compiler.token;
 
-import java.util.LinkedList;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import static jcla.compiler.token.Tokens.*;
@@ -28,7 +29,7 @@ public final class LexicalAnalyzer {
 	 * @return a list of tokens from the input, or null if the input was a comment
 	 */
 	public List<Token> analyze(String input) {
-		List<Token> result = new LinkedList<>();
+		List<Token> tokens = new ArrayList<>();
 		// create a buffer for the identifier the size of the input.
 		// we don't know if the input is a single token or multiple,
 		// so we use input.length()
@@ -36,80 +37,299 @@ public final class LexicalAnalyzer {
 
 		StringBuilder buffer = new StringBuilder(in.length);
 
-		// single line comment
+		// iterating a comment
+		boolean comment = false;
+		// single-line comment
 		boolean singleline = false;
-		// multi line comment
-		boolean multiline = false;
 		// strings
 		boolean string = false;
 		// characters
 		boolean character = false;
 		// escapes
-		boolean escape = false;
+		boolean escaped = false;
+		// literals
+		boolean literal = false;
 
-		char previous = 0;
-
-		for (char current : in) {
+		next_char:
+		for (int i = 0; i < in.length; ) {
+			char current = in[i];
 			switch( current ) {
-				// the unicode escape
-				case 'u':
-					if (escape) {
-						buffer.append('\\');
-					}
-					buffer.append('u');
-					break;
-				// basic escapes
-				case '\\':
-					if (!singleline && !multiline && previous != '\\' && (string || character)) {
-						escape = true;
-					}
-					break;
-				// characters
-				case '\'':
-					if (!singleline && !multiline && !string) {
-						if (!escape)
-							character = !character;
-						else {
-							buffer.append('\'');
-							escape = false;
-							break;
+				case '\\': // escapes
+					if (!comment) { // if not in a comment
+						if (literal) {// if in a literal
+							if (!escaped) { // begin escape if not escaped
+								escaped = true;
+								// don't add backslash to buffer if this is an escape
+							} else { // end escape if escaped
+								escaped = false;
+								// this is a backslash literal
+								buffer.append(current);
+							}
+						} else { // if outside a literal
+							// illegal condition
+							// TODO IllegalCharacterException
+							//throw new IllegalCharacterException("Illegal character: " + toDebugString(current));
+							throw new IllegalArgumentException("Illegal character: " + toDebugString(current));
 						}
+					}
 
-						if (!character) { // end character
-							result.add(literalChar(buffer.toString()));
-							buffer.delete(0, buffer.length());
-						} else { // begin character
-							// tokenize the buffer if it is occupied
-							if (buffer.length() > 0)
-								result.add(identify(buffer.toString()));
-							buffer.delete(0, buffer.length());
+					// go to next char
+					i++;
+					continue next_char;
+				case 'b':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								buffer.append('\b');
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
 						}
 					}
-					break;
-				// strings
-				case '"':
-					if (!singleline && !multiline && !character) {
-						if (!escape)
-							string = !string;
-						else {
-							buffer.append('"');
-							escape = false;
-							break;
-						}
 
-						if (!string) { // end string
-							result.add(literalString(buffer.toString()));
-							buffer.delete(0, buffer.length());
-						} else { // begin string
-							// tokenize the buffer if it is occupied
-							if (buffer.length() > 0)
-								result.add(identify(buffer.toString()));
-							buffer.delete(0, buffer.length());
+					// go to next char
+					i++;
+					continue next_char;
+				case 't':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								buffer.append('\t');
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
 						}
 					}
-					break;
-				// special separators (single char)
-				case '(':
+
+					// go to next char
+					i++;
+					continue next_char;
+				case 'n':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								buffer.append('\n');
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case 'f':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								buffer.append('\f');
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case 'r':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								buffer.append('\r');
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case 'u': // unicode escape or ASCII u char
+					if (!comment) {
+						if (literal) {
+							if (!escaped) {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							} else {
+								escaped = false;
+								// process unicode escape and add to buffer
+								buffer.append(unicode("\\u" + input.substring(i, i + 4)));
+								// skip the unicode sequence in the input for next iteration
+								//
+								// \ u H H H H .
+								//   ^         ^
+								//   i       i + 5
+								//
+								i += 5;
+								continue next_char;
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '0': // octal escapes
+				case '1':
+				case '2':
+				case '3':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								char second = in[i + 1], third = in[i + 2];
+								if (isOctalDigit(second)) {
+									if (isOctalDigit(third)) {
+										buffer.append(octal("\\" + current + second + third));
+									} else {
+										buffer.append(octal("\\" + current + second));
+									}
+								} else {
+									buffer.append(octal("\\" + current));
+								}
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								escaped = false;
+								char second = in[i + 1];
+								if (isOctalDigit(second)) {
+									buffer.append(octal("\\" + current + second));
+								} else {
+									buffer.append(octal("\\" + current));
+								}
+							} else {
+								// add to the buffer, nothing special here
+								buffer.append(current);
+							}
+						} else {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '"': // strings
+					if (!comment) {
+						if (character) {
+							if (escaped)
+								escaped = false;
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							if (!string) {
+								// begin string literal
+								string = true;
+								literal = true;
+								// tokenize the buffer if not empty
+								if (buffer.length() > 0) {
+									tokens.add(identify(buffer.toString()));
+									buffer.delete(0, buffer.length());
+								}
+							} else {
+								if (escaped) {
+									escaped = false;
+									// this is a literal quotation mark
+									buffer.append(current);
+								} else {
+									// end string literal
+									string = false;
+									literal = false;
+									tokens.add(string(buffer.toString()));
+									buffer.delete(0, buffer.length());
+								}
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '\'': // characters
+					if (!comment) {
+						if (string) {
+							if (escaped)
+								escaped = false;
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							if (!character) {
+								// begin character literal
+								character = true;
+								literal = true;
+								// tokenize the buffer if not empty
+								if (buffer.length() > 0) {
+									tokens.add(identify(buffer.toString()));
+									buffer.delete(0, buffer.length());
+								}
+							} else {
+								if (escaped) {
+									escaped = false;
+									// this is a literal apostrophe
+									buffer.append(current);
+								} else {
+									// end character literal
+									character = false;
+									literal = false;
+									tokens.add(character(buffer.toString()));
+									buffer.delete(0, buffer.length());
+								}
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '(': // separators
 				case ')':
 				case '{':
 				case '}':
@@ -117,61 +337,635 @@ public final class LexicalAnalyzer {
 				case ']':
 				case ';':
 				case ',':
-					if (!singleline && !multiline && !string && !character) {
-						// tokenize the buffer if it is occupied
-						if (buffer.length() > 0)
-							result.add(identify(buffer.toString()));
-						buffer.delete(0, buffer.length());
-						result.add(identify(String.valueOf(current)));
-					}
-
-					break;
-
-				// comments
-				case '/':
-					if (!string && !character) {
-						if (previous == '/')
-							singleline = true;
-						else if (previous == '*') {
-							multiline = false;
+				case '@':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+							// tokenize this separator
+							tokens.add(identify(String.valueOf(current)));
 						}
 					}
 
-					break;
-				case '*':
-					if (!string && !character) {
-						if (previous == '/') {
-							multiline = true;
+					i++;
+					continue next_char;
+				case '.': // complex separators
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '.') {
+								if (in[i + 2] == '.') {
+									tokens.add(DOT_DOT_DOT);
+									// go to next char
+									i += 3;
+									continue next_char;
+								} else {
+									// just two consecutive dot separators
+									tokens.add(DOT);
+									tokens.add(DOT);
+
+									i += 2;
+									continue next_char;
+								}
+							} else {
+								tokens.add(DOT);
+							}
 						}
 					}
 
-					break;
-				// white space
-				case CR:
-				case LF:
-					if (!string && !character)
-						singleline = false;
-				case HT:
-				case FF:
-					if (string || character)
-						buffer.append(current);
-					break;
-				case SP:
-					if (buffer.length() > 0 && !singleline && !multiline && !string && !character) {
-						result.add(identify(buffer.toString()));
-					}
-					buffer.delete(0, buffer.length());
+					// go to next char
+					i++;
+					continue next_char;
+				case ':': // complex separator or simple operator
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
 
-					break;
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == ':') {
+								tokens.add(COLON_COLON);
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(COLON);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '=': // simple and complex operators
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(EQUALS);
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(ASSIGNMENT);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '+':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '+') {
+								tokens.add(INCREMENT);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else if (second == '=') {
+								tokens.add(INCREMENT_ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(ADD);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '-':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '-') {
+								tokens.add(DECREMENT);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else if (second == '=') {
+								tokens.add(DECREMENT_ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else if (second == '>') {
+								tokens.add(LAMBDA);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(SUBTRACT);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '*': // multiply or traditional comment indicator
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(MULTIPLY_ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(MULTIPLY);
+							}
+						}
+					} else {
+						// terminate traditional comment
+						if (!singleline && in[i + 1] == '/') {
+							comment = false;
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '/': // divide or comment indicator
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							switch( second ) {
+								case '/': // single-line (EOL) comment start
+									singleline = true;
+									comment = true;
+									// go to next char
+									break;
+								case '*': // begin traditional (multi-line) comment start
+									comment = true;
+									// go to next char
+									break;
+								case '=': // divide assign token
+									tokens.add(DIVIDE_ASSIGN);
+									// go to next char
+									break;
+								default:  // just a divide token
+									tokens.add(DIVIDE);
+									// go to next char
+									i++;
+									continue next_char;
+							}
+
+							// go to next char
+							i += 2;
+							continue next_char;
+						}
+					}
+
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '&':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(AND__ASIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else if (second == '&') {
+								tokens.add(AND);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								// just an ampersand
+								tokens.add(AMPERSAND);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '|':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(OR__ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else if (second == '|') {
+								tokens.add(OR);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(PIPE);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '^':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(XOR__ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(CARET);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '%':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(MODULO__ASSIGN);
+
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(PERCENT_SIGN);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '<':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '<') {
+								if (in[i + 2] == '=') {
+									tokens.add(LEFT_SHIFT__ASSIGN);
+									// go to next char
+									i += 3;
+									continue next_char;
+								} else {
+									tokens.add(LEFT_SHIFT);
+									// go to next char
+									i += 2;
+									continue next_char;
+								}
+							} else if (second == '=') {
+								tokens.add(LESS_THAN_OR_EQUAL);
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(LESS_THAN);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '>':
+					// this character has the greatest possible complexity
+					// for lexical analysis because of type contexts
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '>') {
+								// check if this is a type context (no parsing or parse errors checked)
+								// predicate:
+								// last token is:
+								//  - an IDENTIFIER or ? symbol
+								// second to last token is:
+								//  - a < symbol or , symbol or . symbol
+								//
+								// explanation:
+								//  - a type context cannot have literals as type identifiers
+								//  - a type context must have one or more type arguments, hence the comma
+								//  - a type context must have a valid type which usually is in a package, hence the dot
+								//  - a type context must be surrounded by angle brackets
+								Token  last         = tokens.get(tokens.size() - 1);
+								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
+								// first check if last token is an IDENTIFIER
+								if ((last.getTag() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
+									// offset from the current index into 'in'
+									int offset = 0;
+
+									while( in[i + offset] == '>' ) {
+										tokens.add(GREATER_THAN);
+										offset++;
+									}
+
+									// go to next char
+									// example:
+									// > > > > >   a
+									// 0 1 2 3 4 5 6
+									// ^         ^
+									//i + offset + 1 = i + 1
+									//          i + offset + 1 = i + 5
+									i += (offset + 1);
+									continue next_char;
+								} else { // assume not in a type context, check for operators
+									char third = in[i + 2];
+
+									if (third == '>') {
+										if (in[i + 3] == '=') {
+											tokens.add(UNSIGNED_RIGHT_SHIFT__ASSIGN);
+											// go to next char
+											i += 4;
+											continue next_char;
+										} else {
+											tokens.add(UNSIGNED_RIGHT_SHIFT);
+											// go to next char
+											i += 3;
+											continue next_char;
+										}
+									} else if (third == '=') {
+										tokens.add(RIGHT_SHIFT__ASSIGN);
+										// go to next char
+										i += 3;
+										continue next_char;
+									} else {
+										tokens.add(RIGHT_SHIFT);
+									}
+								}
+							} else if (second == '=') {
+								tokens.add(GREATER_THAN_OR_EQUAL);
+								// go to next char
+								i += 2;
+							} else {
+								tokens.add(GREATER_THAN);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '!':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							char second = in[i + 1];
+
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+
+							if (second == '=') {
+								tokens.add(NOT_EQUAL);
+								// go to next char
+								i += 2;
+								continue next_char;
+							} else {
+								tokens.add(EXCLAMATION);
+							}
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '~':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							tokens.add(TILDA);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case '?':
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							tokens.add(QUESTION_MARK);
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case CR: // carriage return (\ r)
+				case LF: // line feed (\ n)
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						}
+					} else {
+						if (singleline) {
+							singleline = false;
+							comment = false;
+						}
+					}
+
+					// go to next char
+					i++;
+					continue next_char;
+				case FF: // form feed (\ f)
+				case HT: // tab (\ t)
+				case SP: // space ( )
+					if (!comment) {
+						if (literal) {
+							// add to the buffer, nothing special here
+							buffer.append(current);
+						} else {
+							// tokenize the buffer if not empty
+							if (buffer.length() > 0) {
+								tokens.add(identify(buffer.toString()));
+								buffer.delete(0, buffer.length());
+							}
+						}
+					}
+
+					i++;
+					continue next_char;
 				default:
-					if (!singleline && !multiline)
-						buffer.append(current);
+					if (!comment) {
+						if (literal) {
+							if (escaped) {
+								throw new IllegalArgumentException("Illegal character for escape: " + toDebugString(current));
+							} else {
+								buffer.append(current);
+							}
+						} else {
+							buffer.append(current);
+						}
+					}
+					// go to next char
+					i++;
 			}
-
-			previous = current;
 		}
 
-		return result;
+		return tokens;
 	}
 
 	/**
@@ -307,6 +1101,7 @@ public final class LexicalAnalyzer {
 				return WHILE;
 			case "_":
 				return UNDERSCORE;
+			// separators
 			case "(":
 				return LEFT_PARENTHESIS;
 			case ")":
@@ -331,24 +1126,25 @@ public final class LexicalAnalyzer {
 				return AT;
 			case "::":
 				return COLON_COLON;
+			// operators
 			case "=":
-				return EQUALS;
+				return ASSIGNMENT;
 			case ">":
 				return GREATER_THAN;
 			case "<":
 				return LESS_THAN;
 			case "!":
-				return NOT;
+				return EXCLAMATION;
 			case "~":
-				return INVERT;
+				return TILDA;
 			case "?":
-				return TERNARY_BODY;
+				return QUESTION_MARK;
 			case ":":
-				return TERNARY_TAIL;
+				return COLON;
 			case "->":
 				return LAMBDA;
 			case "==":
-				return COMPARISON;
+				return EQUALS;
 			case ">=":
 				return GREATER_THAN_OR_EQUAL;
 			case "<=":
@@ -372,19 +1168,19 @@ public final class LexicalAnalyzer {
 			case "/":
 				return DIVIDE;
 			case "&":
-				return BITWISE_AND;
+				return AMPERSAND;
 			case "|":
-				return BITWISE_OR;
+				return PIPE;
 			case "^":
-				return BITWISE_XOR;
+				return CARET;
 			case "%":
-				return MODULO;
+				return PERCENT_SIGN;
 			case "<<":
-				return LEFT_BITSHIFT;
+				return LEFT_SHIFT;
 			case ">>":
-				return RIGHT_BITSHIFT;
+				return RIGHT_SHIFT;
 			case ">>>":
-				return UNSIGNED_RIGHT_BITSHIFT;
+				return UNSIGNED_RIGHT_SHIFT;
 			case "+=":
 				return INCREMENT_ASSIGN;
 			case "-=":
@@ -394,19 +1190,19 @@ public final class LexicalAnalyzer {
 			case "/=":
 				return DIVIDE_ASSIGN;
 			case "&=":
-				return BITWISE_AND_ASSIGN;
+				return AND__ASIGN;
 			case "|=":
-				return BITWISE_OR_ASSIGN;
+				return OR__ASSIGN;
 			case "^=":
-				return BITWISE_XOR_ASSIGN;
+				return XOR__ASSIGN;
 			case "%=":
-				return MODULO_ASSIGN;
+				return MODULO__ASSIGN;
 			case "<<=":
-				return LEFT_BITSHIFT_ASSIGN;
+				return LEFT_SHIFT__ASSIGN;
 			case ">>=":
-				return RIGHT_BITSHIFT_ASSIGN;
+				return RIGHT_SHIFT__ASSIGN;
 			case ">>>=":
-				return UNSIGNED_RIGHT_BITSHIFT_ASSIGN;
+				return UNSIGNED_RIGHT_SHIFT__ASSIGN;
 			// Literals and Identifiers
 			case "null":
 				return NULL;
@@ -417,361 +1213,52 @@ public final class LexicalAnalyzer {
 			default:
 				// identifiers cannot start with a digit, dot, apostrophe, or quotation mark.
 				char first = input.charAt(0);
-				if (!Character.isDigit(first) || first != '.' || first != '\'' || first != '"')
+				if (!Character.isDigit(first) && first != '.' && first != '\'' && first != '"')
 					return new Token(input, IDENTIFIER);
 
-				// pre-processing to determine indices for
-				// various number formats
-
-				// hexadecimal index
-				int x;
-				if ((x = input.indexOf('x')) == -1)
-					x = input.indexOf('X');
-
-				// binary index
-				int b;
-				if ((b = input.indexOf('b')) == -1)
-					b = input.indexOf('B');
-
-
-				// dot index
-				int dot = input.indexOf('.');
-
-				int lastIndex = input.length() - 1;
-				char last = input.charAt(lastIndex);
-
-				boolean suffix = last == 'f' || last == 'f' || last == 'd' || last == 'D';
-				boolean float32 = dot > -1 && (last == 'f' || last == 'F');
-				boolean float64 = !float32 || (last == 'd' && last == 'D');
-				// strictly integral (no suffix)
-				boolean int32 = !float32 && !float64;
-				boolean int64 = !int32 && (last == 'l' || last == 'L');
-
-				if (int64) { // long
-					if (x == 1) { // hexadecimal
-						if (areHexDigits(input.substring(2, lastIndex - 1))) { // validation
-							return new Token(input, LITERAL, LONG_INTEGER, HEXADECIMAL, LONG_SUFFIX);
-						} else { // has an x, but not valid hex
-							throw new IllegalArgumentException("Invalid hexadecimal long literal: " + input);
-						}
-					} else if (b == 1) { // binary
-						if (isBinaryValue(input.substring(2, lastIndex - 1))) { // validation
-							return new Token(input, LITERAL, LONG_INTEGER, BINARY, LONG_SUFFIX);
-						} else {
-							throw new IllegalArgumentException("Invalid binary long literal: " + input);
-						}
-					} else { // octal or decimal
-						if (isDecimal(input.substring(0, lastIndex - 1))) {
-							return new Token(input, LITERAL, LONG_INTEGER, DECIMAL, LONG_SUFFIX);
-						} else if (isOctalNumber(input.substring(0, lastIndex - 1))) {
-							return new Token(input, LITERAL, LONG_INTEGER, OCTAL, LONG_SUFFIX);
-						} else {
-							// TODO InvalidFormatException
-							throw new IllegalArgumentException("Invalid long literal: " + input);
-						}
-					}
-				} else if (int32) { // int or less
-					if (x == 1) { // hexadecimal
-						if (areHexDigits(input.substring(2, lastIndex))) { // validation
-							return new Token(input, LITERAL, INTEGER, HEXADECIMAL);
-						} else { // has an x, but not valid hex
-							throw new IllegalArgumentException("Invalid hexadecimal integer literal: " + input);
-						}
-					} else if (b == 1) { // binary
-						if (isBinaryValue(input.substring(2, lastIndex))) { // validation
-							return new Token(input, LITERAL, INTEGER, BINARY);
-						} else {
-							throw new IllegalArgumentException("Invalid binary integer literal: " + input);
-						}
-					} else { // octal or decimal
-						if (isDecimal(input.substring(0, lastIndex))) {
-							return new Token(input, LITERAL, INTEGER, DECIMAL);
-						} else if (isOctalNumber(input.substring(0, lastIndex))) {
-							return new Token(input, LITERAL, INTEGER, OCTAL);
-						} else {
-							// TODO InvalidFormatException
-							throw new IllegalArgumentException("Invalid integer literal: " + input);
-						}
-					}
-				} else if (float64) { // double
-					if (x == 1) { // hexadecimal
-						if (areHexDigits(input.substring(2, suffix ? lastIndex - 1 : lastIndex))) { // validation
-							// index of BinaryExponentIndicator
-							int p;
-							if ((p = input.lastIndexOf('p')) == -1)
-								p = input.lastIndexOf('P');
-
-							if (p > 2) { // binary exponent
-								return suffix ? new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, HEXADECIMAL, BINARY_EXPONENT) : new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, HEXADECIMAL, BINARY_EXPONENT);
-							} else if (p == -1) {
-								return suffix ? new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, HEXADECIMAL) : new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, HEXADECIMAL);
-							} else {
-								throw new IllegalArgumentException("Invalid hexadecimal double literal: " + input);
-							}
-						} else { // has an x, but not valid hex
-							throw new IllegalArgumentException("Invalid hexadecimal double literal: " + input);
-						}
-					} else { // decimal
-						if (isDecimal(input.substring(0, lastIndex))) {
-							// index of ExponentIndicator
-							int e;
-							if ((e = input.lastIndexOf('e')) == -1)
-								e = input.lastIndexOf('E');
-
-							if (e > 2) { // decimal exponent
-								return suffix ? new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, DECIMAL, DECIMAL_EXPONENT) : new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DECIMAL, DECIMAL_EXPONENT);
-							} else if (e == -1) {
-								return suffix ? new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, DECIMAL) : new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DECIMAL);
-							} else {
-								throw new IllegalArgumentException("Invalid decimal double literal: " + input);
-							}
-						} else {
-							// TODO InvalidFormatException
-							throw new IllegalArgumentException("Invalid decimal double literal: " + input);
-						}
-					}
-				} else if (float32) {
-					if (x == 1) { // hexadecimal
-						if (areHexDigits(input.substring(2, suffix ? lastIndex - 1 : lastIndex))) { // validation
-							// index of BinaryExponentIndicator
-							int p;
-							if ((p = input.lastIndexOf('p')) == -1)
-								p = input.lastIndexOf('P');
-
-							if (p > 2) { // binary exponent
-								return new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, HEXADECIMAL, BINARY_EXPONENT);
-							} else if (p == -1) {
-								return new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, HEXADECIMAL);
-							} else {
-								throw new IllegalArgumentException("Invalid hexadecimal float literal: " + input);
-							}
-						} else { // has an x, but not valid hex
-							throw new IllegalArgumentException("Invalid hexadecimal float literal: " + input);
-						}
-					} else { // decimal
-						if (isDecimal(input.substring(0, lastIndex))) {
-							// index of ExponentIndicator
-							int e;
-							if ((e = input.lastIndexOf('e')) == -1)
-								e = input.lastIndexOf('E');
-
-							if (e > 2) { // decimal exponent
-								return new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, DECIMAL, DECIMAL_EXPONENT);
-							} else if (e == -1) {
-								return new Token(input, LITERAL, FLOATING_POINT, DOUBLE_PRECISION, DOUBLE_SUFFIX, DECIMAL);
-							} else {
-								throw new IllegalArgumentException("Invalid decimal float literal: " + input);
-							}
-						} else {
-							// TODO InvalidFormatException
-							throw new IllegalArgumentException("Invalid decimal float literal: " + input);
-						}
-					}
-				} else {
-					// determined not a KEYWORD, LITERAL, or IDENTIFIER; invalid token
-					throw new IllegalArgumentException("Invalid token: " + input);
-				}
+				return new Token(input, LITERAL, NUMBER);
 		}
 	}
 
-	public Token literalString(String literal) {
-		char[] in = literal.toCharArray();
-
-		if (in.length < 1)
-			return new Token("\"\"", LITERAL, STRING);
-
-		StringBuilder buffer = new StringBuilder(literal.length());
-
-		char previous = '\0', current;
-
-		for (int i = 0; i < in.length; i++) {
-			current = in[i];
-
-			switch( current ) {
-				case '\\': // offset: i + 0
-					if (previous == '\\') {
-						buffer.append(current);
-					} else {
-						char next = in[i + 1];
-						switch( next ) {
-							case 'u': // offset: i + 1
-								String four = literal.substring(i + 2, i + 6);
-								if (areHexDigits(four))
-									buffer.append(unicodeEscape("\\u" + four));
-								else
-									throw new IllegalArgumentException("Invalid unicode escape sequence: " + current + next + four);
-
-								// skip
-								i += 5;
-								previous = '\0';
-								break;
-							case '0':
-							case '1':
-							case '2':
-							case '3':
-								String three = literal.substring(i + 1, i + 3);
-								if (isOctalNumber(three)) {
-									buffer.append(unicode(Integer.decode("0" + three)));
-									// skip
-									i += 3;
-									previous = '\0';
-								} else {
-									String two = three.substring(0, 2);
-									if (isOctalNumber(two)) {
-										buffer.append(unicode(Integer.decode(two)));
-										// skip
-										i += 2;
-										previous = '\0';
-									} else {
-										buffer.append(unicode(Integer.decode(String.valueOf(next))));
-										// skip
-										i++;
-										previous = '\0';
-									}
-								}
-								break;
-							case '4':
-							case '5':
-							case '6':
-							case '7':
-								buffer.append(unicode(Integer.decode(String.valueOf(next))));
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case 'b':
-								buffer.append(BS);
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case 't':
-								buffer.append(HT);
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case 'n':
-								buffer.append(LF);
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case 'f':
-								buffer.append(FF);
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case 'r':
-								buffer.append(CR);
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case '"':
-								buffer.append('"');
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case '\'':
-								buffer.append('\'');
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							case '\\':
-								buffer.append('\\');
-								// skip
-								i += 1;
-								previous = '\0';
-								break;
-							default:
-								throw new IllegalArgumentException("Invalid escape sequence in String literal: " + current + next);
-						}
-					}
-					break;
-				default:
-					buffer.append(current);
-					previous = current;
-			}
-		}
-
-		return new Token("\"" + buffer.toString() + "\"", LITERAL, STRING);
+	public Token string(String literal) {
+		// -all escapes have been pre-processed by analyzer before-hand
+		// -all conditions must have been met before-hand
+		// therefore: create token directly
+		return new Token(literal, LITERAL, STRING);
 	}
 
-	public Token literalChar(String literal) {
+	public Token character(String literal) {
+		// -all escapes have been pre-processed by analyzer before-hand
+		// -some conditions were met before-hand
+		// therefore: check:
+		//      - not empty
+		//      - correct length
 		switch( literal.length() ) {
-			case 3: // '.'
-				return new Token('\'' + literal + '\'', LITERAL, CHARACTER);
-			case 4: // '\.'
-				if (literal.charAt(1) != '\\')
-					throw new IllegalArgumentException("Invalid character literal sequence: " + literal);
-
-				switch( literal.charAt(2) ) {
-					case '0':
-						return new Token("'\0'", LITERAL, CHARACTER);
-					case '1':
-						return new Token("'\1'", LITERAL, CHARACTER);
-					case '2':
-						return new Token("'\2'", LITERAL, CHARACTER);
-					case '3':
-						return new Token("'\3'", LITERAL, CHARACTER);
-					case '4':
-						return new Token("'\4'", LITERAL, CHARACTER);
-					case '5':
-						return new Token("'\5'", LITERAL, CHARACTER);
-					case '6':
-						return new Token("'\6'", LITERAL, CHARACTER);
-					case '7':
-						return new Token("'\7'", LITERAL, CHARACTER);
-					case 'b':
-						return new Token("'\b'", LITERAL, CHARACTER);
-					case 't':
-						return new Token("'\t'", LITERAL, CHARACTER);
-					case 'n':
-						return new Token("'\n'", LITERAL, CHARACTER);
-					case 'f':
-						return new Token("'\f'", LITERAL, CHARACTER);
-					case 'r':
-						return new Token("'\r'", LITERAL, CHARACTER);
-					case '"':
-						return new Token("'\"'", LITERAL, CHARACTER);
-					case '\'':
-						return new Token("'''", LITERAL, CHARACTER);
-					case '\\':
-						return new Token("'\\'", LITERAL, CHARACTER);
-					default:
-						throw new IllegalArgumentException("Invalid escape sequence in character literal: " + literal);
-				}
-			case 5: // '\0.'
-				if (isOctalNumber(literal.substring(2, 3)))
-					return new Token('\'' + String.valueOf(unicode(Integer.decode("0" + literal.substring(2, 3)))) + '\'', LITERAL, CHARACTER);
-				throw new IllegalArgumentException("Invalid character literal sequence: " + literal);
-			case 6: // '\0..'
-				if (isOctalNumber(literal.substring(2, 4)))
-					return new Token('\'' + String.valueOf(unicode(Integer.decode("0" + literal.substring(2, 4)))) + '\'', LITERAL, CHARACTER);
-				throw new IllegalArgumentException("Invalid character literal sequence: " + literal);
-			case 8: // ' \ u . . . . '
-				return new Token('\'' + String.valueOf(unicodeEscape(literal.substring(2, 6))) + '\'', LITERAL, CHARACTER);
+			case 0: // empty
+				// illegal condition
+				// TODO EmptyCharacterLiteralException
+				throw new IllegalArgumentException("Character literal cannot be empty");
+			case 1: // exactly one char (as usual)
+				return new Token(literal, LITERAL, CHARACTER);
 			default:
-				throw new IllegalArgumentException("Invalid character literal sequence: " + literal);
+				// illegal condition (too many character
+				// TODO CharacterLiteralException
+				throw new IllegalArgumentException("Character literal can only have one character: " + toDebugString(literal));
 		}
 	}
 
-	private static char unicode(int offset) {
-		return (char) offset;
+	private static char unicode(String literal) {
+		if (literal.length() != 6 || !literal.substring(0, 2).equalsIgnoreCase("\\u"))
+			throw new IllegalArgumentException("Invalid unicode escape sequence: " + toDebugString(literal));
+
+		return (char) Integer.decode("0x" + literal.substring(2)).intValue();
 	}
 
-	private static char unicodeEscape(String escapeLiteral) {
-		char first = escapeLiteral.charAt(0), second = escapeLiteral.charAt(1);
+	private static char octal(String literal) {
+		if (literal.length() > 4 || !isOctalNumber(literal.substring(1, 4)))
+			throw new IllegalArgumentException("Invalid octal escape sequence: " + toDebugString(literal));
 
-		// error if not starting with \ and u
-		if (first != '\\' || second != 'u')
-			throw new IllegalArgumentException("Invalid unicode escape sequence : " + escapeLiteral);
-
-		return unicode(Integer.decode("0x" + escapeLiteral.substring(2, 6)));
+		return (char) Integer.decode("0" + literal.substring(1, 4)).intValue();
 	}
 
 	private static boolean hasFloatSuffix(String s) {
@@ -1004,5 +1491,100 @@ public final class LexicalAnalyzer {
 
 		return true;
 	}
+
+
+	private static String toDebugString(char c) {
+		switch( c ) {
+			case '\b':
+				return "\\b";
+			case '\t':
+				return "\\t";
+			case '\n':
+				return "\\n";
+			case '\f':
+				return "\\f";
+			case '\r':
+				return "\\r";
+			case '\u0000':
+				return "NUL";
+			case '\u0001':
+				return "SOH";
+			case '\u0002':
+				return "STX";
+			case '\u0003':
+				return "ETX";
+			case '\u0004':
+				return "EOT";
+			case '\u0005':
+				return "ENQ";
+			case '\u0006':
+				return "ACK";
+			case '\u0007':
+				return "BEL";
+			case '\u000B':
+				return "VT";
+			case '\u000E':
+				return "SO";
+			case '\u000F':
+				return "SI";
+			case '\u0010':
+				return "DLE";
+			case '\u0011':
+				return "DC1";
+			case '\u0012':
+				return "DC2";
+			case '\u0013':
+				return "DC3";
+			case '\u0014':
+				return "DC4";
+			case '\u0015':
+				return "NAK";
+			case '\u0016':
+				return "SYN";
+			case '\u0017':
+				return "ETB";
+			case '\u0018':
+				return "CAN";
+			case '\u0019':
+				return "EM";
+			case '\u001A':
+				return "SUB";
+			case '\u001B':
+				return "ESC";
+			case '\u001C':
+				return "FS";
+			case '\u001D':
+				return "GS";
+			case '\u001E':
+				return "RS";
+			case '\u001F':
+				return "US";
+			case '\u0020':
+				return "SP";
+			case '\u007f':
+				return "DEL";
+			default:
+				return isPrintable(c) ? String.valueOf(c) : "\\u" + Integer.toHexString(c);
+		}
+	}
+
+	private static String toDebugString(String s) {
+		StringBuilder buffer = new StringBuilder(s.length());
+
+		for (char c : s.toCharArray()) {
+			buffer.append(toDebugString(c));
+		}
+
+		return buffer.toString();
+	}
+
+	private static boolean isPrintable(char c) {
+		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+		return (!Character.isISOControl(c)) &&
+				c != KeyEvent.CHAR_UNDEFINED &&
+				block != null &&
+				block != Character.UnicodeBlock.SPECIALS;
+	}
+
 
 }

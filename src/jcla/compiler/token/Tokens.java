@@ -77,44 +77,44 @@ public enum Tokens {
 	public static final Token COLON_COLON          = new Token("::", SEPARATOR);
 
 	// Operators
-	public static final Token EQUALS                         = new Token("=", OPERATOR);
-	public static final Token GREATER_THAN                   = new Token(">", OPERATOR);
-	public static final Token LESS_THAN                      = new Token("<", OPERATOR);
-	public static final Token NOT                            = new Token("!", OPERATOR);
-	public static final Token INVERT                         = new Token("~", OPERATOR);
-	public static final Token TERNARY_BODY                   = new Token("?", OPERATOR);
-	public static final Token TERNARY_TAIL                   = new Token(":", OPERATOR);
-	public static final Token LAMBDA                         = new Token("->", OPERATOR);
-	public static final Token COMPARISON                     = new Token("==", OPERATOR);
-	public static final Token GREATER_THAN_OR_EQUAL          = new Token(">=", OPERATOR);
-	public static final Token LESS_THAN_OR_EQUAL             = new Token("<=", OPERATOR);
-	public static final Token NOT_EQUAL                      = new Token("!=", OPERATOR);
-	public static final Token AND                            = new Token("&&", OPERATOR);
-	public static final Token OR                             = new Token("||", OPERATOR);
-	public static final Token INCREMENT                      = new Token("++", OPERATOR);
-	public static final Token DECREMENT                      = new Token("--", OPERATOR);
-	public static final Token ADD                            = new Token("+", OPERATOR);
-	public static final Token SUBTRACT                       = new Token("-", OPERATOR);
-	public static final Token MULTIPLY                       = new Token("*", OPERATOR);
-	public static final Token DIVIDE                         = new Token("/", OPERATOR);
-	public static final Token BITWISE_AND                    = new Token("&", OPERATOR);
-	public static final Token BITWISE_OR                     = new Token("|", OPERATOR);
-	public static final Token BITWISE_XOR                    = new Token("^", OPERATOR);
-	public static final Token MODULO                         = new Token("%", OPERATOR);
-	public static final Token LEFT_BITSHIFT                  = new Token("<<", OPERATOR);
-	public static final Token RIGHT_BITSHIFT                 = new Token(">>", OPERATOR);
-	public static final Token UNSIGNED_RIGHT_BITSHIFT        = new Token(">>>", OPERATOR);
+	public static final Token ASSIGNMENT    = new Token("=", OPERATOR);
+	public static final Token GREATER_THAN          = new Token(">", OPERATOR);
+	public static final Token LESS_THAN             = new Token("<", OPERATOR);
+	public static final Token EXCLAMATION           = new Token("!", OPERATOR);
+	public static final Token TILDA                 = new Token("~", OPERATOR);
+	public static final Token QUESTION_MARK         = new Token("?", OPERATOR);
+	public static final Token COLON                 = new Token(":", OPERATOR);
+	public static final Token LAMBDA                = new Token("->", OPERATOR);
+	public static final Token EQUALS                = new Token("==", OPERATOR);
+	public static final Token GREATER_THAN_OR_EQUAL = new Token(">=", OPERATOR);
+	public static final Token LESS_THAN_OR_EQUAL    = new Token("<=", OPERATOR);
+	public static final Token NOT_EQUAL             = new Token("!=", OPERATOR);
+	public static final Token AND                   = new Token("&&", OPERATOR);
+	public static final Token OR                    = new Token("||", OPERATOR);
+	public static final Token INCREMENT               = new Token("++", OPERATOR);
+	public static final Token DECREMENT               = new Token("--", OPERATOR);
+	public static final Token ADD                     = new Token("+", OPERATOR);
+	public static final Token SUBTRACT                = new Token("-", OPERATOR);
+	public static final Token MULTIPLY                = new Token("*", OPERATOR);
+	public static final Token DIVIDE                  = new Token("/", OPERATOR);
+	public static final Token AMPERSAND            = new Token("&", OPERATOR);
+	public static final Token PIPE                 = new Token("|", OPERATOR);
+	public static final Token CARET                = new Token("^", OPERATOR);
+	public static final Token PERCENT_SIGN         = new Token("%", OPERATOR);
+	public static final Token LEFT_SHIFT                     = new Token("<<", OPERATOR);
+	public static final Token RIGHT_SHIFT                    = new Token(">>", OPERATOR);
+	public static final Token UNSIGNED_RIGHT_SHIFT           = new Token(">>>", OPERATOR);
 	public static final Token INCREMENT_ASSIGN               = new Token("+=", OPERATOR);
 	public static final Token DECREMENT_ASSIGN               = new Token("-=", OPERATOR);
 	public static final Token MULTIPLY_ASSIGN                = new Token("*=", OPERATOR);
 	public static final Token DIVIDE_ASSIGN                  = new Token("/=", OPERATOR);
-	public static final Token BITWISE_AND_ASSIGN             = new Token("&=", OPERATOR);
-	public static final Token BITWISE_OR_ASSIGN              = new Token("|=", OPERATOR);
-	public static final Token BITWISE_XOR_ASSIGN             = new Token("^=", OPERATOR);
-	public static final Token MODULO_ASSIGN                  = new Token("%=", OPERATOR);
-	public static final Token LEFT_BITSHIFT_ASSIGN           = new Token("<<=", OPERATOR);
-	public static final Token RIGHT_BITSHIFT_ASSIGN          = new Token(">>=", OPERATOR);
-	public static final Token UNSIGNED_RIGHT_BITSHIFT_ASSIGN = new Token(">>>=", OPERATOR);
+	public static final Token AND__ASIGN                   = new Token("&=", OPERATOR);
+	public static final Token OR__ASSIGN                   = new Token("|=", OPERATOR);
+	public static final Token XOR__ASSIGN                  = new Token("^=", OPERATOR);
+	public static final Token MODULO__ASSIGN               = new Token("%=", OPERATOR);
+	public static final Token LEFT_SHIFT__ASSIGN           = new Token("<<=", OPERATOR);
+	public static final Token RIGHT_SHIFT__ASSIGN          = new Token(">>=", OPERATOR);
+	public static final Token UNSIGNED_RIGHT_SHIFT__ASSIGN = new Token(">>>=", OPERATOR);
 
 	// Literals
 	public static final Token NULL  = new Token("null", LITERAL);
@@ -122,15 +122,15 @@ public enum Tokens {
 	public static final Token FALSE = new Token("false", LITERAL);
 
 	// Numbers
-	public static final Token ZERO  = new Token("0", LITERAL, INTEGER);
-	public static final Token ONE   = new Token("1", LITERAL, INTEGER);
-	public static final Token TWO   = new Token("2", LITERAL, INTEGER);
-	public static final Token THREE = new Token("3", LITERAL, INTEGER);
-	public static final Token FOUR  = new Token("4", LITERAL, INTEGER);
-	public static final Token FIVE  = new Token("5", LITERAL, INTEGER);
-	public static final Token SIX   = new Token("6", LITERAL, INTEGER);
-	public static final Token SEVEN = new Token("7", LITERAL, INTEGER);
-	public static final Token EIGHT = new Token("8", LITERAL, INTEGER);
-	public static final Token NINE  = new Token("9", LITERAL, INTEGER);
+	public static final Token ZERO  = new Token("0", LITERAL, NUMBER);
+	public static final Token ONE   = new Token("1", LITERAL, NUMBER);
+	public static final Token TWO   = new Token("2", LITERAL, NUMBER);
+	public static final Token THREE = new Token("3", LITERAL, NUMBER);
+	public static final Token FOUR  = new Token("4", LITERAL, NUMBER);
+	public static final Token FIVE  = new Token("5", LITERAL, NUMBER);
+	public static final Token SIX   = new Token("6", LITERAL, NUMBER);
+	public static final Token SEVEN = new Token("7", LITERAL, NUMBER);
+	public static final Token EIGHT = new Token("8", LITERAL, NUMBER);
+	public static final Token NINE  = new Token("9", LITERAL, NUMBER);
 
 }
