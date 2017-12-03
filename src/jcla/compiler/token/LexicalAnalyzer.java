@@ -1,7 +1,7 @@
 package jcla.compiler.token;
 
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static jcla.compiler.token.Tokens.*;
@@ -29,7 +29,7 @@ public final class LexicalAnalyzer {
 	 * @return a list of tokens from the input, or null if the input was a comment
 	 */
 	public List<Token> analyze(String input) {
-		List<Token> tokens = new ArrayList<>(/*input.length() / 2*/);
+		List<Token> tokens = new LinkedList<>(/*input.length() / 2*/);
 		// create a buffer for the identifier the size of the input.
 		// we don't know if the input is a single token or multiple,
 		// so we use input.length()
