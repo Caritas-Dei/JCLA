@@ -77,37 +77,37 @@ public enum Tokens {
 	public static final Token COLON_COLON          = new Token("::", SEPARATOR);
 
 	// Operators
-	public static final Token ASSIGNMENT    = new Token("=", OPERATOR);
-	public static final Token GREATER_THAN          = new Token(">", OPERATOR);
-	public static final Token LESS_THAN             = new Token("<", OPERATOR);
-	public static final Token EXCLAMATION           = new Token("!", OPERATOR);
-	public static final Token TILDA                 = new Token("~", OPERATOR);
-	public static final Token QUESTION_MARK         = new Token("?", OPERATOR);
-	public static final Token COLON                 = new Token(":", OPERATOR);
-	public static final Token LAMBDA                = new Token("->", OPERATOR);
-	public static final Token EQUALS                = new Token("==", OPERATOR);
-	public static final Token GREATER_THAN_OR_EQUAL = new Token(">=", OPERATOR);
-	public static final Token LESS_THAN_OR_EQUAL    = new Token("<=", OPERATOR);
-	public static final Token NOT_EQUAL             = new Token("!=", OPERATOR);
-	public static final Token AND                   = new Token("&&", OPERATOR);
-	public static final Token OR                    = new Token("||", OPERATOR);
-	public static final Token INCREMENT               = new Token("++", OPERATOR);
-	public static final Token DECREMENT               = new Token("--", OPERATOR);
-	public static final Token ADD                     = new Token("+", OPERATOR);
-	public static final Token SUBTRACT                = new Token("-", OPERATOR);
-	public static final Token MULTIPLY                = new Token("*", OPERATOR);
-	public static final Token DIVIDE                  = new Token("/", OPERATOR);
-	public static final Token AMPERSAND            = new Token("&", OPERATOR);
-	public static final Token PIPE                 = new Token("|", OPERATOR);
-	public static final Token CARET                = new Token("^", OPERATOR);
-	public static final Token PERCENT_SIGN         = new Token("%", OPERATOR);
-	public static final Token LEFT_SHIFT                     = new Token("<<", OPERATOR);
-	public static final Token RIGHT_SHIFT                    = new Token(">>", OPERATOR);
-	public static final Token UNSIGNED_RIGHT_SHIFT           = new Token(">>>", OPERATOR);
-	public static final Token INCREMENT_ASSIGN               = new Token("+=", OPERATOR);
-	public static final Token DECREMENT_ASSIGN               = new Token("-=", OPERATOR);
-	public static final Token MULTIPLY_ASSIGN                = new Token("*=", OPERATOR);
-	public static final Token DIVIDE_ASSIGN                  = new Token("/=", OPERATOR);
+	public static final Token ASSIGNMENT                   = new Token("=", OPERATOR);
+	public static final Token GREATER_THAN                 = new Token(">", OPERATOR);
+	public static final Token LESS_THAN                    = new Token("<", OPERATOR);
+	public static final Token EXCLAMATION                  = new Token("!", OPERATOR);
+	public static final Token TILDA                        = new Token("~", OPERATOR);
+	public static final Token QUESTION_MARK                = new Token("?", OPERATOR);
+	public static final Token COLON                        = new Token(":", OPERATOR);
+	public static final Token LAMBDA                       = new Token("->", OPERATOR);
+	public static final Token EQUALS                       = new Token("==", OPERATOR);
+	public static final Token GREATER_THAN_OR_EQUAL        = new Token(">=", OPERATOR);
+	public static final Token LESS_THAN_OR_EQUAL           = new Token("<=", OPERATOR);
+	public static final Token NOT_EQUAL                    = new Token("!=", OPERATOR);
+	public static final Token AND                          = new Token("&&", OPERATOR);
+	public static final Token OR                           = new Token("||", OPERATOR);
+	public static final Token INCREMENT                    = new Token("++", OPERATOR);
+	public static final Token DECREMENT                    = new Token("--", OPERATOR);
+	public static final Token ADD                          = new Token("+", OPERATOR);
+	public static final Token SUBTRACT                     = new Token("-", OPERATOR);
+	public static final Token MULTIPLY                     = new Token("*", OPERATOR);
+	public static final Token DIVIDE                       = new Token("/", OPERATOR);
+	public static final Token AMPERSAND                    = new Token("&", OPERATOR);
+	public static final Token PIPE                         = new Token("|", OPERATOR);
+	public static final Token CARET                        = new Token("^", OPERATOR);
+	public static final Token PERCENT_SIGN                 = new Token("%", OPERATOR);
+	public static final Token LEFT_SHIFT                   = new Token("<<", OPERATOR);
+	public static final Token RIGHT_SHIFT                  = new Token(">>", OPERATOR);
+	public static final Token UNSIGNED_RIGHT_SHIFT         = new Token(">>>", OPERATOR);
+	public static final Token INCREMENT_ASSIGN             = new Token("+=", OPERATOR);
+	public static final Token DECREMENT_ASSIGN             = new Token("-=", OPERATOR);
+	public static final Token MULTIPLY_ASSIGN              = new Token("*=", OPERATOR);
+	public static final Token DIVIDE_ASSIGN                = new Token("/=", OPERATOR);
 	public static final Token AND__ASIGN                   = new Token("&=", OPERATOR);
 	public static final Token OR__ASSIGN                   = new Token("|=", OPERATOR);
 	public static final Token XOR__ASSIGN                  = new Token("^=", OPERATOR);
@@ -120,6 +120,8 @@ public enum Tokens {
 	public static final Token NULL  = new Token("null", LITERAL);
 	public static final Token TRUE  = new Token("true", LITERAL);
 	public static final Token FALSE = new Token("false", LITERAL);
+
+	public static final Token EMPTY_STRING = new Token("", LITERAL, STRING);
 
 	// Numbers
 	public static final Token ZERO  = new Token("0", LITERAL, NUMBER);

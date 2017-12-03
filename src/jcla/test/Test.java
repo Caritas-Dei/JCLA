@@ -200,21 +200,26 @@ public class Test {
 						"\n" +
 						"}\n";
 
+		String test = "\'\' ";
+
 		warmup(input);
-		LexicalAnalyzer analyzer               = new LexicalAnalyzer();
-		long            start, end, delta, avg = 0;
+		//warmup(test);
+		LexicalAnalyzer analyzer = new LexicalAnalyzer();
+		long            start, end, delta, avg;
 		start = System.nanoTime();
 		List<Token> result = analyzer.analyze(input);
 		end = System.nanoTime();
 		delta = end - start;
 		avg = delta;
 
-		for (int i = 0; i < 50_000; i++) {
+		for (int i = 0; i < 1_000_000; i++) {
 			start = System.nanoTime();
 			analyzer.analyze(input);
+			//result = analyzer.analyze(test);
 			end = System.nanoTime();
 			delta = end - start;
 			avg = (avg + delta) / 2;
+			//print(i);
 		}
 
 		printf(result);

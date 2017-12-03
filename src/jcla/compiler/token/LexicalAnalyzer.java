@@ -29,7 +29,7 @@ public final class LexicalAnalyzer {
 	 * @return a list of tokens from the input, or null if the input was a comment
 	 */
 	public List<Token> analyze(String input) {
-		List<Token> tokens = new ArrayList<>();
+		List<Token> tokens = new ArrayList<>(/*input.length() / 2*/);
 		// create a buffer for the identifier the size of the input.
 		// we don't know if the input is a single token or multiple,
 		// so we use input.length()
@@ -41,14 +41,6 @@ public final class LexicalAnalyzer {
 		boolean comment = false;
 		// single-line comment
 		boolean singleline = false;
-		// strings
-		boolean string = false;
-		// characters
-		boolean character = false;
-		// escapes
-		boolean escaped = false;
-		// literals
-		boolean literal = false;
 
 		next_char:
 		for (int i = 0; i < in.length; ) {
@@ -56,202 +48,127 @@ public final class LexicalAnalyzer {
 			switch( current ) {
 				case '\\': // escapes
 					if (!comment) { // if not in a comment
-						if (literal) {// if in a literal
-							if (!escaped) { // begin escape if not escaped
-								escaped = true;
-								// don't add backslash to buffer if this is an escape
-							} else { // end escape if escaped
-								escaped = false;
-								// this is a backslash literal
-								buffer.append(current);
-							}
-						} else { // if outside a literal
-							// illegal condition
-							// TODO IllegalCharacterException
-							//throw new IllegalCharacterException("Illegal character: " + toDebugString(current));
-							throw new IllegalArgumentException("Illegal character: " + toDebugString(current));
-						}
-					}
+						// handle the escape
+						char second;
 
-					// go to next char
-					i++;
-					continue next_char;
-				case 'b':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing escape sequence", e);
+						}
+
+						switch( second ) {
+							case 'b':
 								buffer.append('\b');
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
-
-					// go to next char
-					i++;
-					continue next_char;
-				case 't':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
+								break;
+							case 't':
 								buffer.append('\t');
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
-
-					// go to next char
-					i++;
-					continue next_char;
-				case 'n':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
+								break;
+							case 'n':
 								buffer.append('\n');
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
-
-					// go to next char
-					i++;
-					continue next_char;
-				case 'f':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
+								break;
+							case 'f':
 								buffer.append('\f');
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
-
-					// go to next char
-					i++;
-					continue next_char;
-				case 'r':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
+								break;
+							case 'r':
 								buffer.append('\r');
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
-
-					// go to next char
-					i++;
-					continue next_char;
-				case 'u': // unicode escape or ASCII u char
-					if (!comment) {
-						if (literal) {
-							if (!escaped) {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							} else {
-								escaped = false;
-								// process unicode escape and add to buffer
-								buffer.append(unicode("\\u" + input.substring(i, i + 4)));
+								break;
+							case 'u': // unicode escape
+								buffer.append(unicode("\\u" + input.substring(i + 2, i + 6)));
 								// skip the unicode sequence in the input for next iteration
 								//
 								// \ u H H H H .
-								//   ^         ^
-								//   i       i + 5
+								// ^           ^
+								// i         i + 6
 								//
-								i += 5;
+								i += 6;
 								continue next_char;
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
+							case '0': // octal escape
+							case '1':
+							case '2':
+							case '3':
+							case '4':
+							case '5':
+							case '6':
+							case '7':
+								if (isZeroToThree(second)) {
+									char third;
 
-					// go to next char
-					i++;
-					continue next_char;
-				case '0': // octal escapes
-				case '1':
-				case '2':
-				case '3':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
-								char second = in[i + 1], third = in[i + 2];
-								if (isOctalDigit(second)) {
+									// load third
+									try {
+										third = in[i + 2];
+									} catch( ArrayIndexOutOfBoundsException e ) {
+										// TODO throw new EndOfDataException
+										throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+									}
+
 									if (isOctalDigit(third)) {
-										buffer.append(octal("\\" + current + second + third));
+										char fourth;
+
+										// load fourth
+										try {
+											fourth = in[i + 3];
+										} catch( ArrayIndexOutOfBoundsException e ) {
+											// TODO throw new EndOfDataException
+											throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+										}
+
+										if (isOctalDigit(fourth)) {
+											buffer.append(octal(String.valueOf(new char[]{ second, third, fourth })));
+											// go to next char
+											i += 4;
+											continue next_char;
+										} else {
+											buffer.append(octal(String.valueOf(new char[]{ second, third })));
+											// go to next char
+											i += 3;
+											continue next_char;
+										}
 									} else {
-										buffer.append(octal("\\" + current + second));
+										buffer.append(octal(String.valueOf(second)));
 									}
 								} else {
-									buffer.append(octal("\\" + current));
-								}
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					}
+									char third;
 
-					// go to next char
-					i++;
-					continue next_char;
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								escaped = false;
-								char second = in[i + 1];
-								if (isOctalDigit(second)) {
-									buffer.append(octal("\\" + current + second));
-								} else {
-									buffer.append(octal("\\" + current));
+									// load third
+									try {
+										third = in[i + 2];
+									} catch( ArrayIndexOutOfBoundsException e ) {
+										// TODO throw new EndOfDataException
+										throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+									}
+
+									if (isOctalDigit(third)) {
+										buffer.append(octal(String.valueOf(new char[]{ second, third })));
+										// go to next char
+										i += 3;
+										continue next_char;
+									} else {
+										buffer.append(octal(String.valueOf(second)));
+									}
 								}
-							} else {
-								// add to the buffer, nothing special here
-								buffer.append(current);
-							}
-						} else {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+
+								break;
+							case '\"': // double quote escape
+								buffer.append('\"');
+								break;
+							case '\'': // single quote escape
+								buffer.append('\'');
+								break;
+							case '\\': // backslash escape
+								buffer.append('\\');
+								break;
+							default:
+								// TODO IllegalCharacterException
+								throw new IllegalArgumentException("Illegal escape character: " + second);
+
 						}
+
+						// go to next char
+						// for single-char breaks only!
+						i += 2;
+						continue next_char;
 					}
 
 					// go to next char
@@ -259,35 +176,174 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '"': // strings
 					if (!comment) {
-						if (character) {
-							if (escaped)
-								escaped = false;
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							if (!string) {
-								// begin string literal
-								string = true;
-								literal = true;
-								// tokenize the buffer if not empty
-								if (buffer.length() > 0) {
-									tokens.add(identify(buffer.toString()));
-									buffer.delete(0, buffer.length());
-								}
-							} else {
-								if (escaped) {
-									escaped = false;
-									// this is a literal quotation mark
-									buffer.append(current);
-								} else {
-									// end string literal
-									string = false;
-									literal = false;
-									tokens.add(string(buffer.toString()));
-									buffer.delete(0, buffer.length());
-								}
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						// add to the buffer until an escape or double quote appears
+						// offset index of the string literal starts one char after the opening "
+						int offset = 1;
+
+						char stringChar;
+
+						next_string_char:
+						while( (stringChar = in[i + offset]) != '\"' ) {
+							switch( stringChar ) {
+								case '\\':
+									// position: offset
+									char next;
+
+									try {
+										next = in[i + offset + 1];
+									} catch( ArrayIndexOutOfBoundsException e ) {
+										// TODO throw new EndOfDataException
+										throw new RuntimeException("Reached end of input while parsing escape sequence in string literal", e);
+									}
+
+									switch( next ) { // position: offset + 1
+										case 'b':
+											buffer.append('\b');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case 't':
+											buffer.append('\t');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case 'n':
+											buffer.append('\n');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case 'f':
+											buffer.append('\f');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case 'r':
+											buffer.append('\r');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case 'u': // unicode escape
+											buffer.append(unicode("\\u" + input.substring(i + offset + 2, i + offset + 6)));
+											// skip the unicode sequence in the input for next iteration
+											//
+											// \ u H H H H .
+											// ^           ^
+											// i         i + 6
+											//
+											offset += 6;
+											continue next_string_char;
+										case '0': // octal escape
+										case '1':
+										case '2':
+										case '3':
+										case '4':
+										case '5':
+										case '6':
+										case '7':
+											if (isZeroToThree(next)) {
+												char third;
+
+												// load third
+												try {
+													third = in[i + offset + 2];
+												} catch( ArrayIndexOutOfBoundsException e ) {
+													// TODO throw new EndOfDataException
+													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+												}
+
+												if (isOctalDigit(third)) {
+													char fourth;
+
+													// load fourth
+													try {
+														fourth = in[i + offset + 3];
+													} catch( ArrayIndexOutOfBoundsException e ) {
+														// TODO throw new EndOfDataException
+														throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+													}
+
+													if (isOctalDigit(fourth)) {
+														buffer.append(octal(String.valueOf(new char[]{ next, third, fourth })));
+														// go to next char
+														offset += 4;
+														continue next_string_char;
+													} else {
+														buffer.append(octal(String.valueOf(new char[]{ next, third })));
+														// go to next char
+														offset += 3;
+														continue next_string_char;
+													}
+												} else {
+													buffer.append(octal(String.valueOf(next)));
+													// go to next char
+													offset += 2;
+													continue next_string_char;
+												}
+											} else {
+												char third;
+
+												// load third
+												try {
+													third = in[i + offset + 2];
+												} catch( ArrayIndexOutOfBoundsException e ) {
+													// TODO throw new EndOfDataException
+													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+												}
+
+												if (isOctalDigit(third)) {
+													buffer.append(octal(String.valueOf(new char[]{ next, third })));
+													// go to next char
+													offset += 3;
+													continue next_string_char;
+												} else {
+													buffer.append(octal(String.valueOf(next)));
+													// go to next char
+													offset += 2;
+													continue next_string_char;
+												}
+											}
+										case '\"': // double quote escape
+											buffer.append('\"');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case '\'': // single quote escape
+											buffer.append('\'');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										case '\\': // backslash escape
+											buffer.append('\\');
+											// go to next char
+											offset += 2;
+											continue next_string_char;
+										default:
+											// TODO IllegalCharacterException
+											throw new IllegalArgumentException("Illegal escape character in string literal: " + toDebugString(next));
+									}
+								case '\r':
+								case '\n':
+									throw new IllegalArgumentException("Reached end of line while parsing string literal");
+								default:
+									buffer.append(stringChar);
+									offset++;
 							}
 						}
+
+						// assume the literal is valid
+						// tokenize the literal
+						tokens.add(buffer.length() > 0 ? string(buffer.toString()) : EMPTY_STRING);
+						buffer.delete(0, buffer.length());
+						// update the index to one after the closing "
+						i += offset + 1;
+						// go to next char
+						continue next_char;
 					}
 
 					// go to next char
@@ -295,97 +351,343 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '\'': // characters
 					if (!comment) {
-						if (string) {
-							if (escaped)
-								escaped = false;
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							if (!character) {
-								// begin character literal
-								character = true;
-								literal = true;
-								// tokenize the buffer if not empty
-								if (buffer.length() > 0) {
-									tokens.add(identify(buffer.toString()));
-									buffer.delete(0, buffer.length());
-								}
-							} else {
-								if (escaped) {
-									escaped = false;
-									// this is a literal apostrophe
-									buffer.append(current);
-								} else {
-									// end character literal
-									character = false;
-									literal = false;
-									tokens.add(character(buffer.toString()));
-									buffer.delete(0, buffer.length());
-								}
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						// add to the buffer until an escape or single quote appears
+						// offset index of the string literal starts one char after the opening "
+						int offset = 1;
+
+						// hah hah tautologies
+						char characterChar;
+
+						next_character_char:
+						while( (characterChar = in[i + offset]) != '\'' ) {
+							switch( characterChar ) {
+								case '\\':
+									// position: offset (i + 1)
+									char next;
+
+									try {
+										next = in[i + offset + 1];
+									} catch( ArrayIndexOutOfBoundsException e ) {
+										// TODO throw new EndOfDataException
+										throw new RuntimeException("Reached end of input while parsing escape sequence in string literal", e);
+									}
+
+									switch( next ) {
+										case 'b':
+											buffer.append('\b');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case 't':
+											buffer.append('\t');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case 'n':
+											buffer.append('\n');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case 'f':
+											buffer.append('\f');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case 'r':
+											buffer.append('\r');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case 'u': // unicode escape
+											buffer.append(unicode("\\u" + input.substring(i + offset + 2, i + offset + 6)));
+											// skip the unicode sequence in the input for next iteration
+											//
+											// \ u H H H H .
+											// ^           ^
+											// i         i + 6
+											//
+											offset += 6;
+											continue next_character_char;
+										case '0': // octal escape
+										case '1':
+										case '2':
+										case '3':
+										case '4':
+										case '5':
+										case '6':
+										case '7':
+											if (isZeroToThree(next)) {
+												char third;
+
+												// load third
+												try {
+													third = in[i + offset + 2];
+												} catch( ArrayIndexOutOfBoundsException e ) {
+													// TODO throw new EndOfDataException
+													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+												}
+
+												if (isOctalDigit(third)) {
+													char fourth;
+
+													// load fourth
+													try {
+														fourth = in[i + offset + 3];
+													} catch( ArrayIndexOutOfBoundsException e ) {
+														// TODO throw new EndOfDataException
+														throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+													}
+
+													if (isOctalDigit(fourth)) {
+														buffer.append(octal(String.valueOf(new char[]{ next, third, fourth })));
+														// go to next char
+														offset += 4;
+														continue next_character_char;
+													} else {
+														buffer.append(octal(String.valueOf(new char[]{ next, third })));
+														// go to next char
+														offset += 3;
+														continue next_character_char;
+													}
+												} else {
+													buffer.append(octal(String.valueOf(next)));
+													// go to next char
+													offset += 2;
+													continue next_character_char;
+												}
+											} else {
+												char third;
+
+												// load third
+												try {
+													third = in[i + offset + 2];
+												} catch( ArrayIndexOutOfBoundsException e ) {
+													// TODO throw new EndOfDataException
+													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
+												}
+
+												if (isOctalDigit(third)) {
+													buffer.append(octal(String.valueOf(new char[]{ next, third })));
+													// go to next char
+													offset += 3;
+													continue next_character_char;
+												} else {
+													buffer.append(octal(String.valueOf(next)));
+													// go to next char
+													offset += 2;
+													continue next_character_char;
+												}
+											}
+										case '\"': // double quote escape
+											buffer.append('\"');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case '\'': // single quote escape
+											buffer.append('\'');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										case '\\': // backslash escape
+											buffer.append('\\');
+											// go to next char
+											offset += 2;
+											continue next_character_char;
+										default:
+											// TODO IllegalCharacterException
+											throw new IllegalArgumentException("Illegal escape character in character literal: " + toDebugString(next));
+									}
+								case '\r':
+								case '\n':
+									throw new IllegalArgumentException("Reached end of line while parsing character literal");
+								default:
+									buffer.append(characterChar);
+									offset++;
 							}
 						}
+
+						// assume the literal is valid
+						// tokenize the literal
+						tokens.add(character(buffer.toString()));
+						buffer.delete(0, buffer.length());
+						// update the index to one after the closing '
+						i += offset + 1;
+						// go to next char
+						continue next_char;
 					}
 
 					// go to next char
 					i++;
 					continue next_char;
 				case '(': // separators
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(LEFT_PARENTHESIS);
+					}
+
+					i++;
+					continue next_char;
 				case ')':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(RIGHT_PARENTHESIS);
+					}
+
+					i++;
+					continue next_char;
 				case '{':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(LEFT_BRACKET);
+					}
+
+					i++;
+					continue next_char;
 				case '}':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(RIGHT_BRACKET);
+					}
+
+					i++;
+					continue next_char;
 				case '[':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(LEFT_SQUARE_BRACKET);
+					}
+
+					i++;
+					continue next_char;
 				case ']':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(RIGHT_SQUARE_BRACKET);
+					}
+
+					i++;
+					continue next_char;
 				case ';':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(SEMICOLON);
+					}
+
+					i++;
+					continue next_char;
 				case ',':
+					if (!comment) {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+						// tokenize this separator
+						tokens.add(COMMA);
+					}
+
+					i++;
+					continue next_char;
 				case '@':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-							// tokenize this separator
-							tokens.add(identify(String.valueOf(current)));
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
 						}
+						// tokenize this separator
+						tokens.add(AT);
 					}
 
 					i++;
 					continue next_char;
 				case '.': // complex separators
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing dot separator", e);
+						}
 
-							if (second == '.') {
-								if (in[i + 2] == '.') {
-									tokens.add(DOT_DOT_DOT);
-									// go to next char
-									i += 3;
-									continue next_char;
-								} else {
-									// just two consecutive dot separators
-									tokens.add(DOT);
-									tokens.add(DOT);
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
 
-									i += 2;
-									continue next_char;
+						switch( second ) {
+							case '.':
+								char third;
+
+								// load third
+								try {
+									third = in[i + 2];
+								} catch( ArrayIndexOutOfBoundsException e ) {
+									// TODO throw new EndOfDataException
+									throw new RuntimeException("Reached end of input while parsing escape sequence", e);
 								}
-							} else {
+
+								switch( third ) {
+									case '.':
+										tokens.add(DOT_DOT_DOT);
+										// go to next char
+										i += 3;
+										continue next_char;
+									default:
+										// just two consecutive dot separators
+										tokens.add(DOT);
+										tokens.add(DOT);
+
+										i += 2;
+										continue next_char;
+								}
+							default:
 								tokens.add(DOT);
-							}
 						}
 					}
 
@@ -394,26 +696,29 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case ':': // complex separator or simple operator
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing : separator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == ':') {
+							tokens.add(COLON_COLON);
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == ':') {
-								tokens.add(COLON_COLON);
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(COLON);
-							}
+							tokens.add(COLON);
 						}
 					}
 
@@ -422,26 +727,29 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '=': // simple and complex operators
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing = operator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == '=') {
+							tokens.add(EQUALS);
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == '=') {
-								tokens.add(EQUALS);
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(ASSIGNMENT);
-							}
+							tokens.add(ASSIGNMENT);
 						}
 					}
 
@@ -450,33 +758,37 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '+':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing + operator", e);
+						}
 
-							if (second == '+') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '+':
 								tokens.add(INCREMENT);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else if (second == '=') {
+							case '=':
 								tokens.add(INCREMENT_ASSIGN);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else {
+							default:
 								tokens.add(ADD);
-							}
 						}
 					}
 
@@ -485,39 +797,43 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '-':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing - operator", e);
+						}
 
-							if (second == '-') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '-':
 								tokens.add(DECREMENT);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else if (second == '=') {
+							case '=':
 								tokens.add(DECREMENT_ASSIGN);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else if (second == '>') {
+							case '>':
 								tokens.add(LAMBDA);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else {
+							default:
 								tokens.add(SUBTRACT);
-							}
 						}
 					}
 
@@ -526,31 +842,43 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '*': // multiply or traditional comment indicator
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing * operator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == '=') {
+							tokens.add(MULTIPLY_ASSIGN);
+
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == '=') {
-								tokens.add(MULTIPLY_ASSIGN);
-
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(MULTIPLY);
-							}
+							tokens.add(MULTIPLY);
 						}
 					} else {
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing dot separator", e);
+						}
 						// terminate traditional comment
-						if (!singleline && in[i + 1] == '/') {
+						if (!singleline && second == '/') {
 							comment = false;
 						}
 					}
@@ -560,43 +888,46 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '/': // divide or comment indicator
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							switch( second ) {
-								case '/': // single-line (EOL) comment start
-									singleline = true;
-									comment = true;
-									// go to next char
-									break;
-								case '*': // begin traditional (multi-line) comment start
-									comment = true;
-									// go to next char
-									break;
-								case '=': // divide assign token
-									tokens.add(DIVIDE_ASSIGN);
-									// go to next char
-									break;
-								default:  // just a divide token
-									tokens.add(DIVIDE);
-									// go to next char
-									i++;
-									continue next_char;
-							}
-
-							// go to next char
-							i += 2;
-							continue next_char;
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing / operator", e);
 						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '/': // single-line (EOL) comment start
+								singleline = true;
+								comment = true;
+								// go to next char
+								break;
+							case '*': // begin traditional (multi-line) comment start
+								comment = true;
+								// go to next char
+								break;
+							case '=': // divide assign token
+								tokens.add(DIVIDE_ASSIGN);
+								// go to next char
+								break;
+							default:  // just a divide token
+								tokens.add(DIVIDE);
+								// go to next char
+								i++;
+								continue next_char;
+						}
+
+						// go to next char
+						i += 2;
+						continue next_char;
 					}
 
 
@@ -605,34 +936,38 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '&':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing & operator", e);
+						}
 
-							if (second == '=') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '=':
 								tokens.add(AND__ASIGN);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else if (second == '&') {
+							case '&':
 								tokens.add(AND);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else {
+							default:
 								// just an ampersand
 								tokens.add(AMPERSAND);
-							}
 						}
 					}
 
@@ -641,33 +976,37 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '|':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing | operator", e);
+						}
 
-							if (second == '=') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '=':
 								tokens.add(OR__ASSIGN);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else if (second == '|') {
+							case '|':
 								tokens.add(OR);
 
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else {
+							default:
 								tokens.add(PIPE);
-							}
 						}
 					}
 
@@ -676,27 +1015,30 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '^':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing ^ operator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == '=') {
+							tokens.add(XOR__ASSIGN);
+
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == '=') {
-								tokens.add(XOR__ASSIGN);
-
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(CARET);
-							}
+							tokens.add(CARET);
 						}
 					}
 
@@ -705,27 +1047,30 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '%':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing % operator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == '=') {
+							tokens.add(MODULO__ASSIGN);
+
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == '=') {
-								tokens.add(MODULO__ASSIGN);
-
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(PERCENT_SIGN);
-							}
+							tokens.add(PERCENT_SIGN);
 						}
 					}
 
@@ -734,38 +1079,50 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '<':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing < operator", e);
+						}
 
-							if (second == '<') {
-								if (in[i + 2] == '=') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '<':
+								char third;
+
+								// load third
+								try {
+									third = in[i + 2];
+								} catch( ArrayIndexOutOfBoundsException e ) {
+									// TODO throw new EndOfDataException
+									throw new RuntimeException("Reached end of input while parsing < operator", e);
+								}
+								if (third == '=') {
 									tokens.add(LEFT_SHIFT__ASSIGN);
 									// go to next char
 									i += 3;
-									continue next_char;
 								} else {
 									tokens.add(LEFT_SHIFT);
 									// go to next char
 									i += 2;
-									continue next_char;
 								}
-							} else if (second == '=') {
+								continue next_char;
+							case '=':
 								tokens.add(LESS_THAN_OR_EQUAL);
 								// go to next char
 								i += 2;
 								continue next_char;
-							} else {
+							default:
 								tokens.add(LESS_THAN);
-							}
 						}
 					}
 
@@ -776,19 +1133,24 @@ public final class LexicalAnalyzer {
 					// this character has the greatest possible complexity
 					// for lexical analysis because of type contexts
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							char second = in[i + 1];
+						char second;
 
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing > operator", e);
+						}
 
-							if (second == '>') {
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						switch( second ) {
+							case '>':
 								// check if this is a type context (no parsing or parse errors checked)
 								// predicate:
 								// last token is:
@@ -801,16 +1163,20 @@ public final class LexicalAnalyzer {
 								//  - a type context must have one or more type arguments, hence the comma
 								//  - a type context must have a valid type which usually is in a package, hence the dot
 								//  - a type context must be surrounded by angle brackets
-								Token  last         = tokens.get(tokens.size() - 1);
+								Token last = tokens.get(tokens.size() - 1);
 								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
 								// first check if last token is an IDENTIFIER
 								if ((last.getTag() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
 									// offset from the current index into 'in'
 									int offset = 0;
-
-									while( in[i + offset] == '>' ) {
-										tokens.add(GREATER_THAN);
-										offset++;
+									try {
+										while( in[i + offset] == '>' ) {
+											tokens.add(GREATER_THAN);
+											offset++;
+										}
+									} catch( ArrayIndexOutOfBoundsException e ) {
+										// TODO throw new EndOfDataException
+										throw new RuntimeException("Reached end of input while parsing > operator", e);
 									}
 
 									// go to next char
@@ -825,34 +1191,34 @@ public final class LexicalAnalyzer {
 								} else { // assume not in a type context, check for operators
 									char third = in[i + 2];
 
-									if (third == '>') {
-										if (in[i + 3] == '=') {
-											tokens.add(UNSIGNED_RIGHT_SHIFT__ASSIGN);
-											// go to next char
-											i += 4;
-											continue next_char;
-										} else {
-											tokens.add(UNSIGNED_RIGHT_SHIFT);
+									switch( third ) {
+										case '>':
+											if (in[i + 3] == '=') {
+												tokens.add(UNSIGNED_RIGHT_SHIFT__ASSIGN);
+												// go to next char
+												i += 4;
+												continue next_char;
+											} else {
+												tokens.add(UNSIGNED_RIGHT_SHIFT);
+												// go to next char
+												i += 3;
+												continue next_char;
+											}
+										case '=':
+											tokens.add(RIGHT_SHIFT__ASSIGN);
 											// go to next char
 											i += 3;
 											continue next_char;
-										}
-									} else if (third == '=') {
-										tokens.add(RIGHT_SHIFT__ASSIGN);
-										// go to next char
-										i += 3;
-										continue next_char;
-									} else {
-										tokens.add(RIGHT_SHIFT);
+										default:
+											tokens.add(RIGHT_SHIFT);
 									}
 								}
-							} else if (second == '=') {
+							case '=':
 								tokens.add(GREATER_THAN_OR_EQUAL);
 								// go to next char
 								i += 2;
-							} else {
+							default:
 								tokens.add(GREATER_THAN);
-							}
 						}
 					}
 
@@ -861,26 +1227,29 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '!':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
+						char second;
+
+						// load second
+						try {
+							second = in[i + 1];
+						} catch( ArrayIndexOutOfBoundsException e ) {
+							// TODO throw new EndOfDataException
+							throw new RuntimeException("Reached end of input while parsing ! operator", e);
+						}
+
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
+						}
+
+						if (second == '=') {
+							tokens.add(NOT_EQUAL);
+							// go to next char
+							i += 2;
+							continue next_char;
 						} else {
-							char second = in[i + 1];
-
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
-
-							if (second == '=') {
-								tokens.add(NOT_EQUAL);
-								// go to next char
-								i += 2;
-								continue next_char;
-							} else {
-								tokens.add(EXCLAMATION);
-							}
+							tokens.add(EXCLAMATION);
 						}
 					}
 
@@ -889,12 +1258,7 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '~':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							tokens.add(TILDA);
-						}
+						tokens.add(TILDA);
 					}
 
 					// go to next char
@@ -902,12 +1266,7 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case '?':
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							tokens.add(QUESTION_MARK);
-						}
+						tokens.add(QUESTION_MARK);
 					}
 
 					// go to next char
@@ -915,12 +1274,7 @@ public final class LexicalAnalyzer {
 					continue next_char;
 				case CR: // carriage return (\ r)
 				case LF: // line feed (\ n)
-					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						}
-					} else {
+					if (comment) {
 						if (singleline) {
 							singleline = false;
 							comment = false;
@@ -934,32 +1288,18 @@ public final class LexicalAnalyzer {
 				case HT: // tab (\ t)
 				case SP: // space ( )
 					if (!comment) {
-						if (literal) {
-							// add to the buffer, nothing special here
-							buffer.append(current);
-						} else {
-							// tokenize the buffer if not empty
-							if (buffer.length() > 0) {
-								tokens.add(identify(buffer.toString()));
-								buffer.delete(0, buffer.length());
-							}
+						// tokenize the buffer if not empty
+						if (buffer.length() > 0) {
+							tokens.add(identify(buffer.toString()));
+							buffer.delete(0, buffer.length());
 						}
 					}
 
 					i++;
 					continue next_char;
 				default:
-					if (!comment) {
-						if (literal) {
-							if (escaped) {
-								throw new IllegalArgumentException("Illegal character for escape: " + toDebugString(current));
-							} else {
-								buffer.append(current);
-							}
-						} else {
-							buffer.append(current);
-						}
-					}
+					if (!comment)
+						buffer.append(current);
 					// go to next char
 					i++;
 			}
@@ -1101,108 +1441,6 @@ public final class LexicalAnalyzer {
 				return WHILE;
 			case "_":
 				return UNDERSCORE;
-			// separators
-			case "(":
-				return LEFT_PARENTHESIS;
-			case ")":
-				return RIGHT_PARENTHESIS;
-			case "{":
-				return LEFT_BRACKET;
-			case "}":
-				return RIGHT_BRACKET;
-			case "[":
-				return LEFT_SQUARE_BRACKET;
-			case "]":
-				return RIGHT_SQUARE_BRACKET;
-			case ";":
-				return SEMICOLON;
-			case ",":
-				return COMMA;
-			case ".":
-				return DOT;
-			case "...":
-				return DOT_DOT_DOT;
-			case "@":
-				return AT;
-			case "::":
-				return COLON_COLON;
-			// operators
-			case "=":
-				return ASSIGNMENT;
-			case ">":
-				return GREATER_THAN;
-			case "<":
-				return LESS_THAN;
-			case "!":
-				return EXCLAMATION;
-			case "~":
-				return TILDA;
-			case "?":
-				return QUESTION_MARK;
-			case ":":
-				return COLON;
-			case "->":
-				return LAMBDA;
-			case "==":
-				return EQUALS;
-			case ">=":
-				return GREATER_THAN_OR_EQUAL;
-			case "<=":
-				return LESS_THAN_OR_EQUAL;
-			case "!=":
-				return NOT_EQUAL;
-			case "&&":
-				return AND;
-			case "||":
-				return OR;
-			case "++":
-				return INCREMENT;
-			case "--":
-				return DECREMENT;
-			case "+":
-				return ADD;
-			case "-":
-				return SUBTRACT;
-			case "*":
-				return MULTIPLY;
-			case "/":
-				return DIVIDE;
-			case "&":
-				return AMPERSAND;
-			case "|":
-				return PIPE;
-			case "^":
-				return CARET;
-			case "%":
-				return PERCENT_SIGN;
-			case "<<":
-				return LEFT_SHIFT;
-			case ">>":
-				return RIGHT_SHIFT;
-			case ">>>":
-				return UNSIGNED_RIGHT_SHIFT;
-			case "+=":
-				return INCREMENT_ASSIGN;
-			case "-=":
-				return DECREMENT_ASSIGN;
-			case "*=":
-				return MULTIPLY_ASSIGN;
-			case "/=":
-				return DIVIDE_ASSIGN;
-			case "&=":
-				return AND__ASIGN;
-			case "|=":
-				return OR__ASSIGN;
-			case "^=":
-				return XOR__ASSIGN;
-			case "%=":
-				return MODULO__ASSIGN;
-			case "<<=":
-				return LEFT_SHIFT__ASSIGN;
-			case ">>=":
-				return RIGHT_SHIFT__ASSIGN;
-			case ">>>=":
-				return UNSIGNED_RIGHT_SHIFT__ASSIGN;
 			// Literals and Identifiers
 			case "null":
 				return NULL;
@@ -1229,35 +1467,16 @@ public final class LexicalAnalyzer {
 
 	public Token character(String literal) {
 		// -all escapes have been pre-processed by analyzer before-hand
-		// -some conditions were met before-hand
-		// therefore: check:
-		//      - not empty
-		//      - correct length
-		switch( literal.length() ) {
-			case 0: // empty
-				// illegal condition
-				// TODO EmptyCharacterLiteralException
-				throw new IllegalArgumentException("Character literal cannot be empty");
-			case 1: // exactly one char (as usual)
-				return new Token(literal, LITERAL, CHARACTER);
-			default:
-				// illegal condition (too many character
-				// TODO CharacterLiteralException
-				throw new IllegalArgumentException("Character literal can only have one character: " + toDebugString(literal));
-		}
+		// -all conditions were met before-hand
+		// therefore: create token directly
+		return new Token(literal, LITERAL, CHARACTER);
 	}
 
 	private static char unicode(String literal) {
-		if (literal.length() != 6 || !literal.substring(0, 2).equalsIgnoreCase("\\u"))
-			throw new IllegalArgumentException("Invalid unicode escape sequence: " + toDebugString(literal));
-
 		return (char) Integer.decode("0x" + literal.substring(2)).intValue();
 	}
 
 	private static char octal(String literal) {
-		if (literal.length() > 4 || !isOctalNumber(literal.substring(1, 4)))
-			throw new IllegalArgumentException("Invalid octal escape sequence: " + toDebugString(literal));
-
 		return (char) Integer.decode("0" + literal.substring(1, 4)).intValue();
 	}
 
@@ -1349,21 +1568,6 @@ public final class LexicalAnalyzer {
 			default:
 				return false;
 		}
-	}
-
-	private static boolean isOctalDigitOrUnderscore(char c) {
-		return c == '_' || isOctalDigit(c);
-	}
-
-	private static boolean isOctalNumber(String s) {
-		char[] in = s.toCharArray();
-
-		for (char c : in) {
-			if (!isOctalDigitOrUnderscore(c))
-				return false;
-		}
-
-		return true;
 	}
 
 	private static boolean isZeroToThree(char c) {
