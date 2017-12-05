@@ -1,7 +1,7 @@
 package jcla.compiler;
 
 import jcla.compiler.construct.Construct;
-import jcla.compiler.token.LexicalAnalyzer;
+import jcla.compiler.token.analyzer.LexicalAnalyzer;
 import jcla.compiler.token.Token;
 
 import java.util.List;

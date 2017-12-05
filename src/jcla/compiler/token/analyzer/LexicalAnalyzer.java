@@ -1,4 +1,6 @@
-package jcla.compiler.token;
+package jcla.compiler.token.analyzer;
+
+import jcla.compiler.token.Token;
 
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
@@ -30,11 +32,12 @@ public final class LexicalAnalyzer {
 	 */
 	public List<Token> analyze(String input) {
 		List<Token> tokens = new LinkedList<>(/*input.length() / 2*/);
+
+		char[] in = input.toCharArray();
+
 		// create a buffer for the identifier the size of the input.
 		// we don't know if the input is a single token or multiple,
 		// so we use input.length()
-		char[] in = input.toCharArray();
-
 		StringBuilder buffer = new StringBuilder(in.length);
 
 		// iterating a comment
@@ -1453,7 +1456,7 @@ public final class LexicalAnalyzer {
 				char first = input.charAt(0);
 				if (!Character.isDigit(first) && first != '.' && first != '\'' && first != '"')
 					return new Token(input, IDENTIFIER);
-
+				// string literals are processed by #analyze()
 				return new Token(input, LITERAL, NUMBER);
 		}
 	}

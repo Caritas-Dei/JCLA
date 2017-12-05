@@ -4,7 +4,7 @@ import jcla.ClassDefinition;
 import jcla.ClassPool;
 import jcla.classfile.ClassFile;
 import jcla.classfile.util.ClassFilePool;
-import jcla.compiler.token.LexicalAnalyzer;
+import jcla.compiler.token.analyzer.LexicalAnalyzer;
 import jcla.compiler.token.Token;
 import jcla.io.ClassInputStream;
 
@@ -32,7 +32,7 @@ public class Test {
 						"import jcla.ClassPool;\n" +
 						"import jcla.classfile.ClassFile;\n" +
 						"import jcla.classfile.util.ClassFilePool;\n" +
-						"import jcla.compiler.token.LexicalAnalyzer;\n" +
+						"import jcla.compiler.token.analyzer.LexicalAnalyzer;\n" +
 						"import jcla.compiler.token.Token;\n" +
 						"import jcla.io.ClassInputStream;\n" +
 						"\n" +
