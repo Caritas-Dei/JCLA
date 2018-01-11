@@ -1,6 +1,6 @@
 package jcla.compiler.lang;
 
-import jcla.compiler.construct.Construct;
+import jcla.compiler.lang.grammar.Grammar;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class Document {
 
-	private final List<Construct> lines;
+	private final List<Grammar> lines;
 
-	public Document(List<Construct> lines) {
+	public Document(List<Grammar> lines) {
 		this.lines = lines;
 	}
 

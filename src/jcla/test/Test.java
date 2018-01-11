@@ -200,8 +200,6 @@ public class Test {
 						"\n" +
 						"}\n";
 
-		String test = "\'\' ";
-
 		warmup(input);
 		//warmup(test);
 		LexicalAnalyzer analyzer = new LexicalAnalyzer();

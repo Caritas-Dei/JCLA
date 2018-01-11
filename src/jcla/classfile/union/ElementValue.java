@@ -54,7 +54,7 @@ public abstract class ElementValue {
 				}
 				return new Array(values, owner);
 			default:
-				throw new ElementValuePairFormatException("Unrecognized ASCII char tag: " + tag + " (" + Integer.toHexString(Character.getNumericValue(tag)) + ")");
+				throw new ElementValuePairFormatException("Unrecognized ASCII char label: " + tag + " (" + Integer.toHexString(Character.getNumericValue(tag)) + ")");
 		}
 	}
 
@@ -98,7 +98,7 @@ public abstract class ElementValue {
 			case 0x5B:
 				return '[';
 			default:
-				throw new ElementValuePairFormatException("Unrecognized ASCII char tag: " + Integer.toHexString(ubyteASCII));
+				throw new ElementValuePairFormatException("Unrecognized ASCII char label: " + Integer.toHexString(ubyteASCII));
 		}
 	}
 

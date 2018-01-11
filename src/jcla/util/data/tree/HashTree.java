@@ -10,7 +10,11 @@ import java.util.Map;
  */
 public final class HashTree<K, T> {
 
-	private Node<K, T> root = new Node<>(this, null);
+	private Node<K, T> root = new Node<>(null, null);
+
+	public Node<K, T> getRoot() {
+		return root;
+	}
 
 	/**
 	 * Allows traversal and retrieval of Nodes to and from this HashTree via delegated proxy.
@@ -18,10 +22,10 @@ public final class HashTree<K, T> {
 	 * @return a new Navigator instance for traversing this HashTree
 	 */
 	public Navigator nagivator() {
-		return new Navigator(this);
+		return new Navigator<K, T>(this);
 	}
 
-	final class Node<K, V> {
+	public static final class Node<K, V> {
 
 		private final HashTree<K, V>     owner;
 		// the child Nodes
@@ -33,12 +37,12 @@ public final class HashTree<K, T> {
 		// the depth of this Node
 		private final int                depth;
 
-		public Node(HashTree<K, V> owner, Node<K, V> parent) {
-			this(owner, null, parent);
+		Node(Node<K, V> parent) {
+			this(null, parent);
 		}
 
-		public Node(HashTree<K, V> owner, V value, Node<K, V> parent) {
-			this.owner = owner;
+		Node(V value, Node<K, V> parent) {
+			this.owner = parent.owner;
 			this.value = value;
 			children = new HashMap<>();
 			this.parent = parent;
@@ -77,10 +81,14 @@ public final class HashTree<K, T> {
 			return children.remove(key);
 		}
 
+		public static <K, V> Node<K, V> create(V value, Node<K, V> parent) {
+			return new Node<>(value, parent);
+		}
+
 	}
 
 	@SuppressWarnings("unchecked")
-	final class Navigator {
+	public final class Navigator<K, T> {
 
 		private final HashTree<K, T> tree;
 		private       Node<K, T>     position;
@@ -134,7 +142,7 @@ public final class HashTree<K, T> {
 		 * Resets this Navigator's position to the HashTree's root Node.
 		 */
 		public void reset() {
-			position = tree.root;
+			position = (Node<K, T>) tree.root;
 		}
 
 		/**

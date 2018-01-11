@@ -1,0 +1,656 @@
+package jcla.compiler.lang.grammar;
+
+/**
+ * A Grammar is a simple pattern or template made of constituents which can be basic or complex Grammars.
+ *
+ * @author link
+ */
+public enum Grammar {
+
+	// 3.3 Unicode Escapes
+
+	UNICODE_INPUT_CHARACTER,
+	UNICODE_ESCAPE,
+	UNICODE_MARKER,
+	HEX_DIGIT,
+	RAW_INPUT_CHARACTER,
+
+	// 3.4 Line Terminators
+
+	LINE_TERMINATOR,
+	INPUT_CHARACTER,
+
+	// 3.5 Input Elements and Tokens
+
+	INPUT,
+	INPUT_ELEMENT,
+	TOKEN,
+	SUB,
+
+	// 3.6 White Space
+
+	WHITE_SPACE,
+
+	// 3.7 Comments
+
+	COMMENT,
+	TRADITIONAL_COMMENT,
+	COMMENT_TAIL,
+	COMMENTA_TAIL_STAR,
+	NOT_STAR,
+	NOT_STAR_NOT_SLASH,
+	END_OF_LINE_COMMENT,
+
+	//3.8 Identifiers
+
+	IDENTIFIER,
+	IDENTIFIER_CHARS,
+	JAVA_LETTER,
+	JAVA_LETTER_OR_DIGIT,
+
+	//3.9 Keywords
+
+	KEYWORD,
+
+	// 3.10 LITERALS
+
+	LITERAL,
+
+	// 3.10.1 Integer Literals
+
+	INTEGER_LITERAL,
+	DECIMAL_INTEGER_LITERAL,
+	HEX_INTEGER_LITERAL,
+	OCTAL_INTEGER_LITERAL,
+	BINARY_INTEGER_LITERAL,
+	INTEGER_TYPE_SUFFIX,
+	DECIMAL_NUMERAL,
+	NON_ZERO_DIGIT,
+	DIGITS,
+	DIGIT,
+	DIGITS_AND_UNDERSCORES,
+	DIGIT_OR_UNDERSCORE,
+	UNDERSCORES,
+	HEX_NUMERAL,
+	HEX_DIGITS,
+	HEX_DIGITS_AND_UNDERSCORES,
+	HEX_DIGIT_OR_UNDERSCORE,
+	OCTAL_NUMERAL,
+	OCTAL_DIGITS,
+	OCTAL_DIGIT,
+	OCTAL_DIGITS_AND_UNDERSCORES,
+	OCTAL_DIGIT_OR_UNDERSCORE,
+	BINARY_NUMERAL,
+	BINARY_DIGITS,
+	BINARY_DIGIT,
+	BINARY_DIGITS_AND_UNDERSCORES,
+	BINARY_DIGIT_OR_UNDERSCORE,
+
+	// 3.10.2 Floating-Point Literals
+
+	FLOATING_POINT_LITERAL,
+	DECIMAL_FLOATING_POINT_LITERAL,
+	EXPONENT_PART,
+	EXPONENT_INDICATOR,
+	SIGNED_INTEGER,
+	SIGN,
+	FLOAT_TYPE_SUFFIX,
+	HEXADECIMAL_FLOATING_POINT_LITERAL,
+	HEX_SIGNIFICANT,
+	BINARY_EXPONENT,
+	BINARY_EXPONENT_INDICATOR,
+
+	// 3.10.3 Boolean Literals
+
+	BOOLEAN_LITERAL,
+
+	// 3.10.4 Character Literals
+
+	CHARACTER_LITERAL,
+	SINGLE_CHARACTER,
+
+	// 3.10.5 String Literals
+
+	STRING_LITERAL,
+	STRING_CHARACTER,
+
+	// 3.10.6 Escape Sequences for Character and String Literals
+
+	ESCAPE_SEQUENCE,
+	OCTAL_ESCAPE,
+	ZERO_TO_THREE,
+
+	// 3.10.7 The Null Literal
+
+	NULL_LITERAL,
+
+	// 3.11 SEPARATORS
+
+	SEPARATOR,
+
+	// 3.12 OPERATORS
+
+	OPERATOR,
+
+	// 4.1 The Kinds of Types and values
+
+	TYPE,
+
+	// 4.2 Primitive Types and Values
+
+	PRIMITIVE_TYPE,
+	NUMERIC_TYPE,
+	INTEGRAL_TYPE,
+	FLOATING_POINT_TYPE,
+
+	// 4.3 Reference Types and Values
+
+	REFERENCE_TYPE,
+	CLASS_OR_INTERFACE_TYPE,
+	CLASS_TYPE,
+	INTERFACE_TYPE,
+	TYPE_VARIABLE,
+	ARRAY_TYPE,
+	DIMS,
+
+	// 4.4 Type Variables
+
+	TYPE_PARAMETER,
+	TYPE_PARAMETER_MODIFIER,
+	TYPE_BOUND,
+	ADDITIONAL_BOUND,
+
+	// 4.5.1 Types Arguments of Parameterized Types
+
+	TYPE_ARGUMENTS,
+	TYPE_ARGUMENT_LIST,
+	TYPE_ARGUMENT,
+	WILDCARD,
+	WILDCARD_BOUNDS,
+
+	// 6.5 Determining the Meaning of a Name
+
+	MODULE_NAME,
+	PACKAGE_NAME,
+	TYPE_NAME,
+	PACKAGE_OR_TYPE_NAME,
+	EXPRESSION_NAME,
+	METHOD_NAME,
+	AMBIGUOUS_NAME,
+
+	// 7.3 Compilation Units
+
+	COMPILATION_UNIT,
+	ORDINARY_COMPILATION_UNIT,
+	MODULAR_COMPILATION_UNIT,
+
+	// 7.4.1 Named Packages
+
+	PACKAGE_DECLARATION,
+	PACKAGE_MODIFIER,
+
+	// 7.5 Import Declarations
+
+	IMPORT_DECLARATION,
+
+	//7.5.1 Single-Type-Import Declarations
+
+	SINGLE_TYPE_IMPORT_DECLARATION,
+
+	// 7.5.2 Type-Import-on-Demand Declarations
+
+	TYPE_IMPORT_ON_DEMAND_DECLARATION,
+
+	// 7.5.3 Single-Static-Import Declarations
+
+	SINGLE_STATIC_IMPORT_DECLARATION,
+
+	// 7.5.4 Static-Import-on-Demand Declarations,
+
+	SINGLE_STATIC_IMPORT_ON_DEMAND_DECLARATION,
+
+	// 7.6 Top Level Type Declarations
+
+	TYPE_DECLARATION,
+
+	// 7.7 Module Declarations
+
+	MODULE_DECLARATION,
+	MODULE_DIRECTIVE,
+	REQUIRES_MODIFIER,
+
+	// 8.1 Class Declarations
+
+	CLASS_DECLARATION,
+	NORMAL_CLASS_DECLARATION,
+
+	// 8.1.1 Class Modifiers
+
+	CLASS_MODIFIER,
+
+	// 8.1.2 Generic Classes and Type Parameters
+
+	TYPE_PARAMETERS,
+	TYPE_PARAMETER_LIST,
+
+	// 8.1.4 Superclasses and Subclasses
+
+	SUPERCLASS,
+
+	// 8.1.5 Superinterfaces
+
+	SUPERINTERFACE,
+	INTERFACE_TYPE_LIST,
+
+	// 8.1.6 Class Body and Member Declarations
+
+	CLASS_BODY,
+	CLASS_BODY_DECLARATION,
+	CLASS_MEMBER_DECLARATION,
+
+	// 8.3 Field Declarations
+
+	FIELD_DECLARATION,
+	VARIABLE_DECLARATOR_LIST,
+	VARIABLE_DECLARATOR,
+	VARIABLE_DECLARATOR_ID,
+	VARIABLE_INITIALIZER,
+	UNANN_TYPE,
+	UNANN_PRIMITIVE_TYPE,
+	UNANN_REFERENCE_TYPE,
+	UNANN_CLASS_OR_INTERFACE_TYPE,
+	UNANN_CLASS_TYPE,
+	UNANN_INTERFACE_TYPE,
+	UNANN_TYPE_VARIABLE,
+	UNANN_ARRAY_TYPE,
+
+	// 8.3.1 Field Modifiers
+
+	FIELD_MODIFIER,
+
+	// 8.4 Method Declarations
+
+	METHOD_DECLARATION,
+	METHOD_HEADER,
+	METHOD_DECLARATOR,
+
+	// 8.4.1 Formal Parameters
+
+	FORMAL_PARAMETER_LIST,
+	FORMAL_PARAMETERS,
+	FORMAL_PARAMTER,
+	VARIABLE_MODIFIER,
+	RECEIVER_PARAMETER,
+	LAST_FORMAL_PARAMETER,
+
+	// 8.4.3 Method Modifiers
+
+	METHOD_MODIFIER,
+
+	// 8.4.5 Method Result
+
+	RESULT,
+
+	// 8.4.6 Method Throws
+
+	THROWS,
+	EXCEPTION_TYPE_LIST,
+	EXCEPTION_TYPE,
+
+	// 8.4.7 Method Body
+
+	METHOD_BODY,
+
+	// 8.6 Instance Initializers
+
+	INSTANCE_INITIALIZER,
+
+	// 8.7 Static Initializers
+
+	STATIC_INITIALIZER,
+
+	// 8.8 Constructor Declarations
+
+	CONSTRUCTOR_DECLARATION,
+	CONSTRUCTOR_DECLARATOR,
+	SIMPLE_TYPE_NAME,
+
+	// 8.8.3 Constructor Modifiers
+
+	CONSTRUCTOR_MODIFIER,
+
+	// 8.8.7 Constructor Body
+
+	CONSTRUCTOR_BODY,
+
+	// 8.8.7.1 Explicit Constructor Invocations
+
+	EXPLICIT_CONSTRUCTOR_INVOCATION,
+
+	// 8.9 Enum Types
+
+	ENUM_DECLARATION,
+
+	// 8.9.1 Enum Constants
+
+	ENUM_BODY,
+	ENUM_CONSTANT_LIST,
+	ENUM_CONSTANT,
+	ENUM_CONSTANT_MODIFIER,
+
+	// 8.9.2 Enum Body Declarations
+
+	ENUM_BODY_DECLARATIONS,
+
+	// 9.1 Interface Declarations
+
+	INTERFACE_DECLARATION,
+	NORMAL_INTERFACE_DECLARATION,
+
+	// 9.1.1 Interface Modifiers
+
+	INTERFACE_MODIFIER,
+
+	// 9.1.3 Superinterfaces and Subinterfaces
+
+	EXTENDS_INTERFACES,
+
+	// 9.1.4 Interface body and Member Declarations
+
+	INTERFACE_BODY,
+	INTERFACE_MEMBER_DECLARATION,
+
+	// 9.3 Field (Constant) Declarations
+
+	CONSTANT_DECLARATION,
+	CONSTANT_MODIFIER,
+
+	// 9.4 Method Declarations
+
+	INTERFACE_METHOD_DECLARATION,
+	INTERFACE_METHOD_MODIFIER,
+
+	// 9.6 Annotation Types
+
+	ANNOTAION_TYPE_DECLARATION,
+
+	// 9.6.1 Annotation Type Elements
+
+	ANNOTATION_TYPE_BODY,
+	ANNOTAITON_TYPE_MEMBER_DECLARATION,
+	ANNOTAITON_TYPE_ELMEMENT_DECLARATION,
+	ANNOTATION_TYPE_ELEMENT_MODIFIER,
+
+	// 9.6.2 Defaults for Annotation Type Elements
+
+	DEFAULT_VALUE,
+
+	// 9.7
+
+	ANNOTATION,
+
+	// 9.7.1 Normal Annotations
+
+	NORMAL_ANNOTATION,
+	ELEMENT_VALUE_PAIR_LIST,
+	ELMEENT_VALUE_PAIR,
+	ELEMENT_VALUE,
+	ELEMENT_VALUE_ARRAY_INITIALIZER,
+	ELEMENT_VALUE_LIST,
+
+	// 9.7.2 Marker Annotations
+
+	MARKER_ANNOTATION,
+
+	// 9.7.3 Single-Element Annotations
+
+	SINGLE_ELEMENT_ANNOTATION,
+
+	// 10.6 Array Initializers
+
+	ARRAY_INITIALIZER,
+	VARIABLE_INITIALIZER_LIST,
+
+	// 14.2 Blocks
+
+	BLOCK,
+	BLOCK_STATEMENTS,
+	BLOCK_STATEMENT,
+
+	// 14.4 Local Variable Declaration Statements
+
+	LOCAL_VARIABLE_DECLARATION_STATEMENT,
+	LOCAL_VARIABLE_DECLARATION,
+
+	// 14.5 Statements
+
+	STATEMENT,
+	STATEMENT_NO_SHORT_IF,
+	STATEMENT_WITHOUT_TRAILING_SUBSTATEMENT,
+
+	// 14.6 The Empty Statement
+
+	EMPTY_STATEMENT,
+
+	// 14.7 Labeled Statements
+
+	LABELED_STATEMENT,
+	LABELED_STATEMENT_NO_SHORT_IF,
+
+	// 14.8 Expression Statements
+
+	EXPRESSION_STATEMENT,
+	STATEMENT_EXPRESSION,
+
+	// 14.9 The if Statement
+
+	IF_THEN_STATEMENT,
+	IF_THEN_ELSE_STATEMENT,
+	IF_THEN_ELSE_STATEMENT_NO_SHORT_IF,
+
+	// 14.10 The assert Statement
+
+	ASSERT_STATEMENT,
+
+	// 14.11 The switch Statement
+
+	SWITCH_STATEMENT,
+	SWITCH_BLOCK,
+	SWITCH_BLOCK_STATEMENT_GROUP,
+	SWITCH_LABELS,
+	SWITCH_LABEL,
+	ENUM_CONSTANT_NAME,
+
+	// 14.12 The while Statement
+
+	WHILE_STATEMENT,
+	WHILE_STATEMENT_NO_SHORT_IF,
+
+	// 14.13 The do Statement
+
+	DO_STATEMENT,
+
+	// 14.14 The for Statement
+
+	FOR_STATEMENT,
+	FOR_STATEMENT_NO_SHORT_IF,
+
+	// 14.14.1 The basic for Statement
+
+	BASIC_FOR_STATEMENT,
+	BASIC_FOR_STATEMENT_NO_SHORT_IF,
+	FOR_INIT,
+	FOR_UPDATE,
+	STATEMENT_EXPRESSION_LIST,
+
+	// 14.14.2 The enhanced for statement
+
+	ENHANCED_FOR_STATEMENT,
+	ENHANCED_FOR_STATEMENT_NO_SHORT_IF,
+
+	// 14.15 The break Statement
+
+	BREAK_STATEMENT,
+
+	// 14.16 The continue Statement
+
+	CONTINUE_STATEMENT,
+
+	// 14.17 The return Statement
+
+	RETURN_STATEMENT,
+
+	// 14.18 The throw Statement
+
+	THROW_STATEMENT,
+
+	// 14.19 The synchronized Statement
+
+	SYNCHRONIZED_STATEMENT,
+
+	// 14.20 The try statement
+
+	TRY_STATEMENT,
+	CATCHES,
+	CATCH_CLAUSE,
+	CATCH_FORMAL_PARAMETER,
+	CATCH_TYPE,
+	FINALLY,
+
+	// 14.20.3 try-with-resources
+
+	TRY_WITH_RESOURCES_STATEMENT,
+	RESOURCE_SPECIFICATION,
+	RESOURCE_LIST,
+	RESOURCE,
+	VARIABLE_ACCESS,
+
+	// 15.2 Forms of Expressions
+
+	EXPRESSION,
+
+	// 15.8 Primary Expressions
+
+	PRIMARY,
+	PRIMARY_NO_NEW_ARRAY,
+
+	// 15.8.2 Class Literals
+
+	CLASS_LITERAL,
+
+	// 15.9 Class Instance Creation Expressions
+
+	CLASS_INSTANCE_CREATION_EXPRESSION,
+	UNQUALIFIED_CLASS_INSTANCE_CREATION_EXPRESSION,
+	CLASS_OR_INTERFACE_TYPE_TO_INSTANTIATE,
+	TYPE_ARGUMENTS_OR_DIAMOND,
+
+	// 15.10.1 Array Creation Expressions
+
+	ARRAY_CREATION_EXPRESSIOn,
+	DIM_EXPRS,
+	DIM_EXPR,
+
+	// 15.10.3 Array Access Exceptions
+
+	ARRAY_ACCESS,
+
+	// 15.11 Field Access Expressions
+
+	FIELD_ACCESS,
+
+	// 15.12 Method Invocation Expressions
+
+	METHOD_INVOCATION,
+	ARGUMENT_LIST,
+
+	// 15.13 Method Reference Expressions
+
+	METHOD_REFERENCE,
+
+	// 15.14 Postfix Expressions
+
+	POSTFIX_EXPRESSION,
+
+	// 15.14.2 Postfix Increment Operator ++
+
+	POST_INCREMENT_EXPRESSION,
+
+	// 15.14.3 Postfix Decrement Operator --
+
+	POST_DECREMENT_EXPRESSION,
+
+	// 15.15 Unary Operators
+
+	UNARY_EXPRESSION,
+	PRE_INCREMENT_EXPRESSION,
+	PRE_DECREMENT_EXPRESSION,
+	UNARY_EXPRESSION_NOT_PLUS_MINUS,
+
+	// 15.6 Cast Expressions
+
+	CAST_EXPRESSION,
+
+	// 15.17 Multiplicative Operators
+
+	MULTIPLICATIVE_EXPRESSIOn,
+
+	// 15.18 Additive Operators
+
+	ADDITIVE_EXPRESSION,
+
+	// 15.19 Shift Operators
+
+	SHIFT_EXPRESSION,
+
+	// 15.20 Relational Operators
+
+	RELATIONAL_EXPRESSION,
+
+	// 15.21 Equality Operators
+
+	EQUALITY_EXPRESSION,
+
+	// 15.22 Bitwise and Logical Operators
+
+	AND_EXPRESSION,
+	EXCLUSIVE_OR_EXPRESSION,
+	INCLUSIVE_OR_EXPRESSION,
+
+	// 15.23 Conditional-And Operator &&
+
+	CONDITIONAL_AND_EXPRESSION,
+
+	// 15.24 Conditional-Or Operator ||
+
+	CONDITIONAL_OR_EXPRESSION,
+
+	// 15.25 Conditional Operator ? :
+
+	CONDITIONAL_EXPRESSION,
+
+	// 15.26 Assignment Operators
+
+	ASSIGNMENT_EXPRESSION,
+	ASSIGNMENT,
+	LEFT_HAND_SIDE,
+	ASSIGNMENT_OPERATOR,
+
+	// 15.27 Lambda Expressions
+
+	LAMBDA_EXPRESSION,
+
+	// 15.27.1 Lambda Parameters
+
+	LAMBDA_PARAMETERS,
+	INFERRED_FORMAL_PARAMETER_LIST,
+
+	// 15.27.2 Lambda Body
+
+	LAMBDA_BODY,
+
+	// 15.28 Constant Expressions
+
+	CONSTANT_EXPRESSION;
+
+}

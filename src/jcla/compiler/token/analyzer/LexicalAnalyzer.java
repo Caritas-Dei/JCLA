@@ -1,14 +1,14 @@
 package jcla.compiler.token.analyzer;
 
 import jcla.compiler.token.Token;
+import jcla.compiler.token.Tokens;
 
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 
+import static jcla.compiler.lang.grammar.Grammar.*;
 import static jcla.compiler.token.Tokens.*;
-import static jcla.compiler.token.hint.Hints.*;
-import static jcla.compiler.token.tag.Tags.*;
 
 /**
  * @author link
@@ -752,7 +752,7 @@ public final class LexicalAnalyzer {
 							i += 2;
 							continue next_char;
 						} else {
-							tokens.add(ASSIGNMENT);
+							tokens.add(EQUAL_SIGN);
 						}
 					}
 
@@ -957,13 +957,13 @@ public final class LexicalAnalyzer {
 
 						switch( second ) {
 							case '=':
-								tokens.add(AND__ASIGN);
+								tokens.add(AND_EQUALS);
 
 								// go to next char
 								i += 2;
 								continue next_char;
 							case '&':
-								tokens.add(AND);
+								tokens.add(CONDITIONAL_AND);
 
 								// go to next char
 								i += 2;
@@ -997,13 +997,13 @@ public final class LexicalAnalyzer {
 
 						switch( second ) {
 							case '=':
-								tokens.add(OR__ASSIGN);
+								tokens.add(OR_EQUALS);
 
 								// go to next char
 								i += 2;
 								continue next_char;
 							case '|':
-								tokens.add(OR);
+								tokens.add(CONDITIONAL_OR);
 
 								// go to next char
 								i += 2;
@@ -1035,7 +1035,7 @@ public final class LexicalAnalyzer {
 						}
 
 						if (second == '=') {
-							tokens.add(XOR__ASSIGN);
+							tokens.add(XOR_EQUALS);
 
 							// go to next char
 							i += 2;
@@ -1067,7 +1067,7 @@ public final class LexicalAnalyzer {
 						}
 
 						if (second == '=') {
-							tokens.add(MODULO__ASSIGN);
+							tokens.add(MODULO_EQUALS);
 
 							// go to next char
 							i += 2;
@@ -1110,7 +1110,7 @@ public final class LexicalAnalyzer {
 									throw new RuntimeException("Reached end of input while parsing < operator", e);
 								}
 								if (third == '=') {
-									tokens.add(LEFT_SHIFT__ASSIGN);
+									tokens.add(LEFT_SHIFT_EQUALS);
 									// go to next char
 									i += 3;
 								} else {
@@ -1169,7 +1169,7 @@ public final class LexicalAnalyzer {
 								Token last = tokens.get(tokens.size() - 1);
 								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
 								// first check if last token is an IDENTIFIER
-								if ((last.getTag() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
+								if ((last.getGrammar() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
 									// offset from the current index into 'in'
 									int offset = 0;
 									try {
@@ -1197,7 +1197,7 @@ public final class LexicalAnalyzer {
 									switch( third ) {
 										case '>':
 											if (in[i + 3] == '=') {
-												tokens.add(UNSIGNED_RIGHT_SHIFT__ASSIGN);
+												tokens.add(UNSIGNED_RIGHT_SHIFT_EQUALS);
 												// go to next char
 												i += 4;
 												continue next_char;
@@ -1208,7 +1208,7 @@ public final class LexicalAnalyzer {
 												continue next_char;
 											}
 										case '=':
-											tokens.add(RIGHT_SHIFT__ASSIGN);
+											tokens.add(RIGHT_SHIFT_EQUALS);
 											// go to next char
 											i += 3;
 											continue next_char;
@@ -1252,7 +1252,7 @@ public final class LexicalAnalyzer {
 							i += 2;
 							continue next_char;
 						} else {
-							tokens.add(EXCLAMATION);
+							tokens.add(EXCLAMATION_POINT);
 						}
 					}
 
@@ -1379,7 +1379,7 @@ public final class LexicalAnalyzer {
 			case "final":
 				return FINAL;
 			case "finally":
-				return FINALLY;
+				return Tokens.FINALLY;
 			case "float":
 				return FLOAT;
 			case "for":
@@ -1431,7 +1431,7 @@ public final class LexicalAnalyzer {
 			case "throw":
 				return THROW;
 			case "throws":
-				return THROWS;
+				return Tokens.THROWS;
 			case "transient":
 				return TRANSIENT;
 			case "try":
@@ -1456,8 +1456,8 @@ public final class LexicalAnalyzer {
 				char first = input.charAt(0);
 				if (!Character.isDigit(first) && first != '.' && first != '\'' && first != '"')
 					return new Token(input, IDENTIFIER);
-				// string literals are processed by #analyze()
-				return new Token(input, LITERAL, NUMBER);
+				// string and number literals are processed by #analyze()
+				return new Token(input, LITERAL);
 		}
 	}
 
@@ -1465,14 +1465,14 @@ public final class LexicalAnalyzer {
 		// -all escapes have been pre-processed by analyzer before-hand
 		// -all conditions must have been met before-hand
 		// therefore: create token directly
-		return new Token(literal, LITERAL, STRING);
+		return new Token(literal, STRING_LITERAL);
 	}
 
 	public Token character(String literal) {
 		// -all escapes have been pre-processed by analyzer before-hand
 		// -all conditions were met before-hand
 		// therefore: create token directly
-		return new Token(literal, LITERAL, CHARACTER);
+		return new Token(literal, CHARACTER_LITERAL);
 	}
 
 	private static char unicode(String literal) {
@@ -1511,7 +1511,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid BinaryIntegerLiteral production as defined by JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid BinaryIntegerLiteral grammar as defined by JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the string is a valid binary literal
@@ -1636,7 +1636,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid HexDigits production according to JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid HexDigits grammar according to JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the sequence consists entirely of valid hexadecimal digits; false otherwise
@@ -1653,7 +1653,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid HexSignificand production according to JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid HexSignificand grammar according to JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the sequence is a valid hexadecimal sequence

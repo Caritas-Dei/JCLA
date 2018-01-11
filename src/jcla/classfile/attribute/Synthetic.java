@@ -8,7 +8,7 @@ import java.io.DataInput;
 import java.io.IOException;
 
 /**
- * A tag Attribute to declare that this class is synthetic.
+ * A label Attribute to declare that this class is synthetic.
  *
  * @author link
  */

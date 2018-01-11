@@ -104,9 +104,9 @@ public enum Types {
 	 * Qualifies the given descriptor to an array of fully qualified binary class names.
 	 * <p>
 	 * This method converts fully qualified descriptors in the form of<br>
-	 * <pre>IIILjava/lang/Object;Ljava/lang/Class;... OR Ljava/lang/Object;</pre><br>
+	 * <pre>IIILjava/lang/Object;Ljava/lang/Class;... CONDITIONAL_OR Ljava/lang/Object;</pre><br>
 	 * to<br>
-	 * <pre>String[]{int, int, int, java.lang.Object, java.lang.Class, ...} OR String[]{java.lang.Object}</pre>
+	 * <pre>String[]{int, int, int, java.lang.Object, java.lang.Class, ...} CONDITIONAL_OR String[]{java.lang.Object}</pre>
 	 * </p>
 	 *
 	 * @param descriptor a fully-qualified binary name according to the Java Language Specification
