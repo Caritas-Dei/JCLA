@@ -16,33 +16,24 @@
  * <p>
  * This file is part of JCLassAssistant
  * <p>
- * Created on 3/13/2018 at 7:06 PM
+ * Created on 3/13/2018 at 7:30 PM
  */
 
-package jcla.compiler.lang.production;
+package jcla.compiler.lang.production.token;
 
 /**
  *
  * @author Andrew Porter
  */
-public abstract class Production {
+public class Separator extends Token {
 
-    protected final Production[] constituents;
+	public Separator(String symbol) {
+		super(symbol);
+	}
 
-    public Production(Production... constituents) {
-        this.constituents = constituents;
-    }
-
-    public Production[] getConstituents() {
-        return constituents;
-    }
-
-    public boolean isConcrete() {
-        return false;
-    }
-
-    public String getSymbol() {
-        return null;
-    }
+	@Override
+	public String toString() {
+		return "Separator[symbol: \"" + symbol + "\"]";
+	}
 
 }

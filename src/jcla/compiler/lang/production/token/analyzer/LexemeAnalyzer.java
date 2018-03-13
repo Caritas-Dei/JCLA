@@ -1,14 +1,15 @@
-package jcla.compiler.token.analyzer;
+package jcla.compiler.lang.production.token.analyzer;
 
-import jcla.compiler.token.Token;
-import jcla.compiler.token.Tokens;
+import jcla.compiler.lang.production.token.Identifier;
+import jcla.compiler.lang.production.token.Literal;
+import jcla.compiler.lang.production.token.Token;
+import jcla.compiler.lang.production.token.Tokens;
 
 import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import static jcla.compiler.lang.grammar.Productions.*;
-import static jcla.compiler.token.Tokens.*;
+import static jcla.compiler.lang.production.token.Tokens.*;
 
 /**
  * @author link
@@ -48,7 +49,7 @@ public final class LexemeAnalyzer {
 		next_char:
 		for (int i = 0; i < in.length; ) {
 			char current = in[i];
-			switch( current ) {
+			switch (current) {
 				case '\\': // escapes
 					if (!comment) { // if not in a comment
 						// handle the escape
@@ -56,12 +57,12 @@ public final class LexemeAnalyzer {
 
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing escape sequence", e);
 						}
 
-						switch( second ) {
+						switch (second) {
 							case 'b':
 								buffer.append('\b');
 								break;
@@ -101,7 +102,7 @@ public final class LexemeAnalyzer {
 									// load third
 									try {
 										third = in[i + 2];
-									} catch( ArrayIndexOutOfBoundsException e ) {
+									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO throw new EndOfDataException
 										throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 									}
@@ -112,18 +113,18 @@ public final class LexemeAnalyzer {
 										// load fourth
 										try {
 											fourth = in[i + 3];
-										} catch( ArrayIndexOutOfBoundsException e ) {
+										} catch (ArrayIndexOutOfBoundsException e) {
 											// TODO throw new EndOfDataException
 											throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 										}
 
 										if (isOctalDigit(fourth)) {
-											buffer.append(octal(String.valueOf(new char[]{ second, third, fourth })));
+											buffer.append(octal(String.valueOf(new char[]{second, third, fourth})));
 											// go to next char
 											i += 4;
 											continue next_char;
 										} else {
-											buffer.append(octal(String.valueOf(new char[]{ second, third })));
+											buffer.append(octal(String.valueOf(new char[]{second, third})));
 											// go to next char
 											i += 3;
 											continue next_char;
@@ -137,13 +138,13 @@ public final class LexemeAnalyzer {
 									// load third
 									try {
 										third = in[i + 2];
-									} catch( ArrayIndexOutOfBoundsException e ) {
+									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO throw new EndOfDataException
 										throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 									}
 
 									if (isOctalDigit(third)) {
-										buffer.append(octal(String.valueOf(new char[]{ second, third })));
+										buffer.append(octal(String.valueOf(new char[]{second, third})));
 										// go to next char
 										i += 3;
 										continue next_char;
@@ -192,20 +193,20 @@ public final class LexemeAnalyzer {
 						char stringChar;
 
 						next_string_char:
-						while( (stringChar = in[i + offset]) != '\"' ) {
-							switch( stringChar ) {
+						while ((stringChar = in[i + offset]) != '\"') {
+							switch (stringChar) {
 								case '\\':
 									// position: offset
 									char next;
 
 									try {
 										next = in[i + offset + 1];
-									} catch( ArrayIndexOutOfBoundsException e ) {
+									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO throw new EndOfDataException
 										throw new RuntimeException("Reached end of input while parsing escape sequence in string literal", e);
 									}
 
-									switch( next ) { // position: offset + 1
+									switch (next) { // position: offset + 1
 										case 'b':
 											buffer.append('\b');
 											// go to next char
@@ -255,7 +256,7 @@ public final class LexemeAnalyzer {
 												// load third
 												try {
 													third = in[i + offset + 2];
-												} catch( ArrayIndexOutOfBoundsException e ) {
+												} catch (ArrayIndexOutOfBoundsException e) {
 													// TODO throw new EndOfDataException
 													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 												}
@@ -266,18 +267,18 @@ public final class LexemeAnalyzer {
 													// load fourth
 													try {
 														fourth = in[i + offset + 3];
-													} catch( ArrayIndexOutOfBoundsException e ) {
+													} catch (ArrayIndexOutOfBoundsException e) {
 														// TODO throw new EndOfDataException
 														throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 													}
 
 													if (isOctalDigit(fourth)) {
-														buffer.append(octal(String.valueOf(new char[]{ next, third, fourth })));
+														buffer.append(octal(String.valueOf(new char[]{next, third, fourth})));
 														// go to next char
 														offset += 4;
 														continue next_string_char;
 													} else {
-														buffer.append(octal(String.valueOf(new char[]{ next, third })));
+														buffer.append(octal(String.valueOf(new char[]{next, third})));
 														// go to next char
 														offset += 3;
 														continue next_string_char;
@@ -294,13 +295,13 @@ public final class LexemeAnalyzer {
 												// load third
 												try {
 													third = in[i + offset + 2];
-												} catch( ArrayIndexOutOfBoundsException e ) {
+												} catch (ArrayIndexOutOfBoundsException e) {
 													// TODO throw new EndOfDataException
 													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 												}
 
 												if (isOctalDigit(third)) {
-													buffer.append(octal(String.valueOf(new char[]{ next, third })));
+													buffer.append(octal(String.valueOf(new char[]{next, third})));
 													// go to next char
 													offset += 3;
 													continue next_string_char;
@@ -368,20 +369,20 @@ public final class LexemeAnalyzer {
 						char characterChar;
 
 						next_character_char:
-						while( (characterChar = in[i + offset]) != '\'' ) {
-							switch( characterChar ) {
+						while ((characterChar = in[i + offset]) != '\'') {
+							switch (characterChar) {
 								case '\\':
 									// position: offset (i + 1)
 									char next;
 
 									try {
 										next = in[i + offset + 1];
-									} catch( ArrayIndexOutOfBoundsException e ) {
+									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO throw new EndOfDataException
 										throw new RuntimeException("Reached end of input while parsing escape sequence in string literal", e);
 									}
 
-									switch( next ) {
+									switch (next) {
 										case 'b':
 											buffer.append('\b');
 											// go to next char
@@ -431,7 +432,7 @@ public final class LexemeAnalyzer {
 												// load third
 												try {
 													third = in[i + offset + 2];
-												} catch( ArrayIndexOutOfBoundsException e ) {
+												} catch (ArrayIndexOutOfBoundsException e) {
 													// TODO throw new EndOfDataException
 													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 												}
@@ -442,18 +443,18 @@ public final class LexemeAnalyzer {
 													// load fourth
 													try {
 														fourth = in[i + offset + 3];
-													} catch( ArrayIndexOutOfBoundsException e ) {
+													} catch (ArrayIndexOutOfBoundsException e) {
 														// TODO throw new EndOfDataException
 														throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 													}
 
 													if (isOctalDigit(fourth)) {
-														buffer.append(octal(String.valueOf(new char[]{ next, third, fourth })));
+														buffer.append(octal(String.valueOf(new char[]{next, third, fourth})));
 														// go to next char
 														offset += 4;
 														continue next_character_char;
 													} else {
-														buffer.append(octal(String.valueOf(new char[]{ next, third })));
+														buffer.append(octal(String.valueOf(new char[]{next, third})));
 														// go to next char
 														offset += 3;
 														continue next_character_char;
@@ -470,13 +471,13 @@ public final class LexemeAnalyzer {
 												// load third
 												try {
 													third = in[i + offset + 2];
-												} catch( ArrayIndexOutOfBoundsException e ) {
+												} catch (ArrayIndexOutOfBoundsException e) {
 													// TODO throw new EndOfDataException
 													throw new RuntimeException("Reached end of input while parsing octal escape sequence", e);
 												}
 
 												if (isOctalDigit(third)) {
-													buffer.append(octal(String.valueOf(new char[]{ next, third })));
+													buffer.append(octal(String.valueOf(new char[]{next, third})));
 													// go to next char
 													offset += 3;
 													continue next_character_char;
@@ -652,7 +653,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing dot separator", e);
 						}
@@ -663,19 +664,19 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '.':
 								char third;
 
 								// load third
 								try {
 									third = in[i + 2];
-								} catch( ArrayIndexOutOfBoundsException e ) {
+								} catch (ArrayIndexOutOfBoundsException e) {
 									// TODO throw new EndOfDataException
 									throw new RuntimeException("Reached end of input while parsing escape sequence", e);
 								}
 
-								switch( third ) {
+								switch (third) {
 									case '.':
 										tokens.add(DOT_DOT_DOT);
 										// go to next char
@@ -704,7 +705,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing : separator", e);
 						}
@@ -735,7 +736,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing = operator", e);
 						}
@@ -766,7 +767,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing + operator", e);
 						}
@@ -777,7 +778,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '+':
 								tokens.add(INCREMENT);
 
@@ -805,7 +806,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing - operator", e);
 						}
@@ -816,7 +817,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '-':
 								tokens.add(DECREMENT);
 
@@ -850,7 +851,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing * operator", e);
 						}
@@ -876,7 +877,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing dot separator", e);
 						}
@@ -896,7 +897,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing / operator", e);
 						}
@@ -907,7 +908,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '/': // single-line (EOL) comment start
 								singleline = true;
 								comment = true;
@@ -944,7 +945,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing & operator", e);
 						}
@@ -955,7 +956,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '=':
 								tokens.add(AND_EQUALS);
 
@@ -984,7 +985,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing | operator", e);
 						}
@@ -995,7 +996,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '=':
 								tokens.add(OR_EQUALS);
 
@@ -1023,7 +1024,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing ^ operator", e);
 						}
@@ -1055,7 +1056,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing % operator", e);
 						}
@@ -1087,7 +1088,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing < operator", e);
 						}
@@ -1098,14 +1099,14 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '<':
 								char third;
 
 								// load third
 								try {
 									third = in[i + 2];
-								} catch( ArrayIndexOutOfBoundsException e ) {
+								} catch (ArrayIndexOutOfBoundsException e) {
 									// TODO throw new EndOfDataException
 									throw new RuntimeException("Reached end of input while parsing < operator", e);
 								}
@@ -1141,7 +1142,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing > operator", e);
 						}
@@ -1152,7 +1153,7 @@ public final class LexemeAnalyzer {
 							buffer.delete(0, buffer.length());
 						}
 
-						switch( second ) {
+						switch (second) {
 							case '>':
 								// check if this is a type context (no parsing or parse errors checked)
 								// predicate:
@@ -1169,15 +1170,15 @@ public final class LexemeAnalyzer {
 								Token last = tokens.get(tokens.size() - 1);
 								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
 								// first check if last token is an IDENTIFIER
-								if ((last.getProduction() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
+								if ((last instanceof Identifier || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
 									// offset from the current index into 'in'
 									int offset = 0;
 									try {
-										while( in[i + offset] == '>' ) {
+										while (in[i + offset] == '>') {
 											tokens.add(GREATER_THAN);
 											offset++;
 										}
-									} catch( ArrayIndexOutOfBoundsException e ) {
+									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO throw new EndOfDataException
 										throw new RuntimeException("Reached end of input while parsing > operator", e);
 									}
@@ -1194,7 +1195,7 @@ public final class LexemeAnalyzer {
 								} else { // assume not in a type context, check for operators
 									char third = in[i + 2];
 
-									switch( third ) {
+									switch (third) {
 										case '>':
 											if (in[i + 3] == '=') {
 												tokens.add(UNSIGNED_RIGHT_SHIFT_EQUALS);
@@ -1235,7 +1236,7 @@ public final class LexemeAnalyzer {
 						// load second
 						try {
 							second = in[i + 1];
-						} catch( ArrayIndexOutOfBoundsException e ) {
+						} catch (ArrayIndexOutOfBoundsException e) {
 							// TODO throw new EndOfDataException
 							throw new RuntimeException("Reached end of input while parsing ! operator", e);
 						}
@@ -1341,7 +1342,7 @@ public final class LexemeAnalyzer {
 		//	  +   -   *   /   &   |   ^   %   <<   >>   >>>
 		//    +=  -=  *=  /=  &=  |=  ^=  %=  <<=  >>=  >>>=
 
-		switch( input ) {
+		switch (input) {
 			case "abstract":
 				return ABSTRACT;
 			case "assert":
@@ -1455,9 +1456,9 @@ public final class LexemeAnalyzer {
 				// identifiers cannot start with a digit, dot, apostrophe, or quotation mark.
 				char first = input.charAt(0);
 				if (!Character.isDigit(first) && first != '.' && first != '\'' && first != '"')
-					return new Token(input, IDENTIFIER);
+					return new Identifier(input);
 				// string and number literals are processed by #analyze()
-				return new Token(input, LITERAL);
+				return new Literal(input);
 		}
 	}
 
@@ -1465,14 +1466,14 @@ public final class LexemeAnalyzer {
 		// -all escapes have been pre-processed by analyzer before-hand
 		// -all conditions must have been met before-hand
 		// therefore: create token directly
-		return new Token(literal, STRING_LITERAL);
+		return new Literal(literal);
 	}
 
 	public Token character(String literal) {
 		// -all escapes have been pre-processed by analyzer before-hand
 		// -all conditions were met before-hand
 		// therefore: create token directly
-		return new Token(literal, CHARACTER_LITERAL);
+		return new Literal(literal);
 	}
 
 	private static char unicode(String literal) {
@@ -1517,8 +1518,8 @@ public final class LexemeAnalyzer {
 	 * @return true iff the string is a valid binary literal
 	 */
 	private static boolean isBinaryNumber(String s) {
-		char[] in    = s.toCharArray();
-		char   first = in[0], second = in[1];
+		char[] in = s.toCharArray();
+		char first = in[0], second = in[1];
 
 		// false if first two characters are not 0x or 0X
 		if (first != '0' && (second != 'b' || second != 'B'))
@@ -1558,7 +1559,7 @@ public final class LexemeAnalyzer {
 	}
 
 	private static boolean isOctalDigit(char c) {
-		switch( c ) {
+		switch (c) {
 			case '0':
 			case '1':
 			case '2':
@@ -1574,7 +1575,7 @@ public final class LexemeAnalyzer {
 	}
 
 	private static boolean isZeroToThree(char c) {
-		switch( c ) {
+		switch (c) {
 			case '0':
 			case '1':
 			case '2':
@@ -1603,7 +1604,7 @@ public final class LexemeAnalyzer {
 
 
 	private static boolean isHexDigit(char c) {
-		switch( c ) {
+		switch (c) {
 			case '0':
 			case '1':
 			case '2':
@@ -1659,8 +1660,8 @@ public final class LexemeAnalyzer {
 	 * @return true iff the sequence is a valid hexadecimal sequence
 	 */
 	private static boolean isHexadecimal(String s) {
-		char[] in    = s.toCharArray();
-		char   first = in[0], second = in[1];
+		char[] in = s.toCharArray();
+		char first = in[0], second = in[1];
 
 		// false if first two characters are not 0x or 0X
 		if (first != '0' && (second != 'x' || second != 'X'))
@@ -1679,8 +1680,8 @@ public final class LexemeAnalyzer {
 	}
 
 	private static boolean isHexadecimalFloat(String s) {
-		char[] in    = s.toCharArray();
-		char   first = in[0], second = in[1];
+		char[] in = s.toCharArray();
+		char first = in[0], second = in[1];
 
 		// false if first two characters are not 0x or 0X
 		if (first != '0' && (second != 'x' || second != 'X'))
@@ -1701,7 +1702,7 @@ public final class LexemeAnalyzer {
 
 
 	private static String toDebugString(char c) {
-		switch( c ) {
+		switch (c) {
 			case '\b':
 				return "\\b";
 			case '\t':

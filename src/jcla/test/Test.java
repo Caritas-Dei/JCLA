@@ -4,8 +4,8 @@ import jcla.ClassDefinition;
 import jcla.ClassPool;
 import jcla.classfile.ClassFile;
 import jcla.classfile.util.ClassFilePool;
-import jcla.compiler.token.analyzer.LexemeAnalyzer;
-import jcla.compiler.token.Token;
+import jcla.compiler.lang.production.token.analyzer.LexemeAnalyzer;
+import jcla.compiler.lang.production.token.Token;
 import jcla.io.ClassInputStream;
 
 import java.io.IOException;
@@ -32,8 +32,8 @@ public class Test {
 						"import jcla.ClassPool;\n" +
 						"import jcla.classfile.ClassFile;\n" +
 						"import jcla.classfile.util.ClassFilePool;\n" +
-						"import jcla.compiler.token.analyzer.LexemeAnalyzer;\n" +
-						"import jcla.compiler.token.Token;\n" +
+						"import jcla.compiler.lang.production.token.analyzer.LexemeAnalyzer;\n" +
+						"import jcla.compiler.lang.production.token.Token;\n" +
 						"import jcla.io.ClassInputStream;\n" +
 						"\n" +
 						"import java.io.IOException;\n" +

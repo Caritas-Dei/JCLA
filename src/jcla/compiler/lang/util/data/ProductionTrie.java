@@ -16,33 +16,14 @@
  * <p>
  * This file is part of JCLassAssistant
  * <p>
- * Created on 3/13/2018 at 7:06 PM
+ * Created on 3/13/2018 at 7:11 PM
  */
 
-package jcla.compiler.lang.production;
+package jcla.compiler.lang.util.data;
 
 /**
  *
  * @author Andrew Porter
  */
-public abstract class Production {
-
-    protected final Production[] constituents;
-
-    public Production(Production... constituents) {
-        this.constituents = constituents;
-    }
-
-    public Production[] getConstituents() {
-        return constituents;
-    }
-
-    public boolean isConcrete() {
-        return false;
-    }
-
-    public String getSymbol() {
-        return null;
-    }
-
+public class ProductionTrie {
 }

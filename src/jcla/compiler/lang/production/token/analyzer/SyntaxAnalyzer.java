@@ -1,6 +1,6 @@
-package jcla.compiler.token.analyzer;
+package jcla.compiler.lang.production.token.analyzer;
 
-import jcla.compiler.token.Token;
+import jcla.compiler.lang.production.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
