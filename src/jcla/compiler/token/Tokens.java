@@ -1,6 +1,6 @@
 package jcla.compiler.token;
 
-import static jcla.compiler.lang.grammar.Grammar.*;
+import static jcla.compiler.lang.grammar.Productions.*;
 
 /**
  * @author link

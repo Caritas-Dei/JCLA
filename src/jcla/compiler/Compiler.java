@@ -1,7 +1,7 @@
 package jcla.compiler;
 
 import jcla.compiler.token.Token;
-import jcla.compiler.token.analyzer.LexicalAnalyzer;
+import jcla.compiler.token.analyzer.LexemeAnalyzer;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Compiler {
 
-	private final LexicalAnalyzer analyzer = new LexicalAnalyzer();
+	private final LexemeAnalyzer analyzer = new LexemeAnalyzer();
 
 	public void compile(String code) {
 		List<Token> tokens = analyzer.analyze(code);

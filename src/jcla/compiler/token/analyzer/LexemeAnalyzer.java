@@ -7,13 +7,13 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import static jcla.compiler.lang.grammar.Grammar.*;
+import static jcla.compiler.lang.grammar.Productions.*;
 import static jcla.compiler.token.Tokens.*;
 
 /**
  * @author link
  */
-public final class LexicalAnalyzer {
+public final class LexemeAnalyzer {
 
 	// special characters
 	private static final char SP = ' ';
@@ -1169,7 +1169,7 @@ public final class LexicalAnalyzer {
 								Token last = tokens.get(tokens.size() - 1);
 								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
 								// first check if last token is an IDENTIFIER
-								if ((last.getGrammar() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
+								if ((last.getProduction() == IDENTIFIER || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
 									// offset from the current index into 'in'
 									int offset = 0;
 									try {
@@ -1511,7 +1511,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid BinaryIntegerLiteral grammar as defined by JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid BinaryIntegerLiteral production as defined by JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the string is a valid binary literal
@@ -1636,7 +1636,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid HexDigits grammar according to JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid HexDigits production according to JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the sequence consists entirely of valid hexadecimal digits; false otherwise
@@ -1653,7 +1653,7 @@ public final class LexicalAnalyzer {
 	}
 
 	/**
-	 * Checks if the given sequence is a valid HexSignificand grammar according to JLS&sect;3.10.1.
+	 * Checks if the given sequence is a valid HexSignificand production according to JLS&sect;3.10.1.
 	 *
 	 * @param s the sequence to process
 	 * @return true iff the sequence is a valid hexadecimal sequence

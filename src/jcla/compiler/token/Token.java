@@ -1,6 +1,5 @@
 package jcla.compiler.token;
 
-import jcla.compiler.lang.grammar.Grammar;
 import jcla.compiler.lang.production.Production;
 
 /**
@@ -12,8 +11,8 @@ public class Token extends Production {
 
 	private final String  symbol;
 
-	public Token(String symbol, Grammar grammar) {
-		super(NONE, grammar);
+	public Token(String symbol, Productions production) {
+		super(NONE, production);
 		this.symbol = symbol;
 	}
 
@@ -23,7 +22,7 @@ public class Token extends Production {
 
 	@Override
 	public String toString() {
-		return "Token[grammar:" + grammar + ", grammar: " + grammar + ", symbol: \"" + symbol + "\"]";
+		return "Token[production:" + production + ", production: " + production + ", symbol: \"" + symbol + "\"]";
 	}
 
 }

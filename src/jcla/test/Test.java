@@ -4,7 +4,7 @@ import jcla.ClassDefinition;
 import jcla.ClassPool;
 import jcla.classfile.ClassFile;
 import jcla.classfile.util.ClassFilePool;
-import jcla.compiler.token.analyzer.LexicalAnalyzer;
+import jcla.compiler.token.analyzer.LexemeAnalyzer;
 import jcla.compiler.token.Token;
 import jcla.io.ClassInputStream;
 
@@ -32,7 +32,7 @@ public class Test {
 						"import jcla.ClassPool;\n" +
 						"import jcla.classfile.ClassFile;\n" +
 						"import jcla.classfile.util.ClassFilePool;\n" +
-						"import jcla.compiler.token.analyzer.LexicalAnalyzer;\n" +
+						"import jcla.compiler.token.analyzer.LexemeAnalyzer;\n" +
 						"import jcla.compiler.token.Token;\n" +
 						"import jcla.io.ClassInputStream;\n" +
 						"\n" +
@@ -69,7 +69,7 @@ public class Test {
 						"\t\t\t\t\"\\t\\tString input = \\\"\\\\\\\"\\\\\\\\u0027\\\\\\\\u0027\\\\\\\"\\\";\\n\" +\n" +
 						"\t\t\t\t\"\\n\" +\n" +
 						"\t\t\t\t\"\\t\\twarmup(input);\\n\" +\n" +
-						"\t\t\t\t\"\\t\\tLexicalAnalyzer analyzer = new LexicalAnalyzer();\\n\" +\n" +
+						"\t\t\t\t\"\\t\\tLexemeAnalyzer analyzer = new LexemeAnalyzer();\\n\" +\n" +
 						"\t\t\t\t\"\\t\\tlong            start, end, delta, avg = 0;\\n\" +\n" +
 						"\t\t\t\t\"\\t\\tstart = System.nanoTime();\\n\" +\n" +
 						"\t\t\t\t\"\\t\\tList<Token> result = analyzer.analyze(input);\\n\" +\n" +
@@ -90,7 +90,7 @@ public class Test {
 						"\t\t\t\t\"\\t}\\n\" +\n" +
 						"\t\t\t\t\"\\n\" +\n" +
 						"\t\t\t\t\"\\tprivate static void warmup(String input) {\\n\" +\n" +
-						"\t\t\t\t\"\\t\\tLexicalAnalyzer analyzer = new LexicalAnalyzer();\\n\" +\n" +
+						"\t\t\t\t\"\\t\\tLexemeAnalyzer analyzer = new LexemeAnalyzer();\\n\" +\n" +
 						"\t\t\t\t\"\\t\\tfor (int i = 0; i < 10_000; i++) {\\n\" +\n" +
 						"\t\t\t\t\"\\t\\t\\tList<Token> result = analyzer.analyze(input);\\n\" +\n" +
 						"\t\t\t\t\"\\t\\t}\\n\" +\n" +
@@ -135,7 +135,7 @@ public class Test {
 						"\t\t\t\t\"}\\n\";\n" +
 						"\n" +
 						"\t\twarmup(input);\n" +
-						"\t\tLexicalAnalyzer analyzer = new LexicalAnalyzer();\n" +
+						"\t\tLexemeAnalyzer analyzer = new LexemeAnalyzer();\n" +
 						"\t\tlong            start, end, delta, avg = 0;\n" +
 						"\t\tstart = System.nanoTime();\n" +
 						"\t\tList<Token> result = analyzer.analyze(input);\n" +
@@ -156,7 +156,7 @@ public class Test {
 						"\t}\n" +
 						"\n" +
 						"\tprivate static void warmup(String input) {\n" +
-						"\t\tLexicalAnalyzer analyzer = new LexicalAnalyzer();\n" +
+						"\t\tLexemeAnalyzer analyzer = new LexemeAnalyzer();\n" +
 						"\t\tfor (int i = 0; i < 10_000; i++) {\n" +
 						"\t\t\tList<Token> result = analyzer.analyze(input);\n" +
 						"\t\t}\n" +
@@ -202,8 +202,8 @@ public class Test {
 
 		warmup(input);
 		//warmup(test);
-		LexicalAnalyzer analyzer = new LexicalAnalyzer();
-		long            start, end, delta, avg;
+		LexemeAnalyzer analyzer = new LexemeAnalyzer();
+		long           start, end, delta, avg;
 		start = System.nanoTime();
 		List<Token> result = analyzer.analyze(input);
 		end = System.nanoTime();
@@ -225,7 +225,7 @@ public class Test {
 	}
 
 	private static void warmup(String input) {
-		LexicalAnalyzer analyzer = new LexicalAnalyzer();
+		LexemeAnalyzer analyzer = new LexemeAnalyzer();
 		for (int i = 0; i < 10_000; i++) {
 			List<Token> result = analyzer.analyze(input);
 		}
