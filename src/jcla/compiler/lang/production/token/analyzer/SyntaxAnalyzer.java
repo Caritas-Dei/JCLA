@@ -1,5 +1,6 @@
 package jcla.compiler.lang.production.token.analyzer;
 
+import jcla.compiler.lang.production.Production;
 import jcla.compiler.lang.production.token.Token;
 
 import java.util.ArrayList;
@@ -18,8 +19,8 @@ public final class SyntaxAnalyzer {
 	 * @param tokens the Tokens to process
 	 * @return a List of Productions created from the List of Tokens
 	 */
-	public List<Symbol> analyze(List<Token> tokens) {
-		List<Symbol> result = new ArrayList<>(tokens.size());
+	public List<Production> analyze(List<Token> tokens) {
+		List<Production> result = new ArrayList<>(tokens.size());
 
 		// recursive linear-based grouping
 
