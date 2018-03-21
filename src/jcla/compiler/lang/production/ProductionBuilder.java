@@ -16,29 +16,29 @@
  * <p>
  * This file is part of JCLassAssistant
  * <p>
- * Created on 3/13/2018 at 7:30 PM
+ * Created on 3/21/2018 at 1:54 PM
  */
 
-package jcla.compiler.lang.production.token;
+package jcla.compiler.lang.production;
+
+import jcla.compiler.lang.production.token.Token;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.util.function.Function;
 
 /**
- *
  * @author Andrew Porter
  */
-public class Separator extends Token {
+public class ProductionBuilder<P extends Production> implements Function<Token[], P> {
 
-	public Separator(String symbol) {
-		super(symbol);
+	public ProductionBuilder(P production) {
+
 	}
 
 	@Override
-	public String toString() {
-		return "Separator[symbol: \"" + symbol + "\"]";
-	}
-
-	@Override
-	public int getID() {
-		return 4;
+	public P apply(Token[] tokens) {
+		return null;
 	}
 
 }

@@ -36,4 +36,9 @@ public class Operator extends Token {
 		return "Operator[symbol: \"" + "\"]";
 	}
 
+	@Override
+	public int getID() {
+		return 3;
+	}
+
 }

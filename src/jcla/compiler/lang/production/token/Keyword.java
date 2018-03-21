@@ -37,4 +37,8 @@ public class Keyword extends Token {
 		return "Keyword[symbol: \"" + symbol + "\"]";
 	}
 
+	@Override
+	public int getID() {
+		return 1;
+	}
 }

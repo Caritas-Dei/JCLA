@@ -21,20 +21,36 @@
 
 package jcla.compiler.lang.production;
 
+import jcla.compiler.lang.production.token.Token;
+
+import java.lang.invoke.MethodHandle;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Andrew Porter
  */
 public abstract class Production {
 
-    protected final Production[] constituents;
+    protected final List<Production> components;
 
-    public Production(Production... constituents) {
-        this.constituents = constituents;
+    public Production(List<Production> components) {
+        this.components = components;
     }
 
-    public Production[] getConstituents() {
-        return constituents;
+    public List<Production> getComponents() {
+        return components;
+    }
+
+    public List<Token> asTokens() {
+        List<Token> tokens = new ArrayList<>(components.size());
+
+        for(Production production : components) {
+            tokens.addAll(production.asTokens());
+        }
+
+        return tokens;
     }
 
     public boolean isConcrete() {

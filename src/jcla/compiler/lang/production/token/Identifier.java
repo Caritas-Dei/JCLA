@@ -36,4 +36,8 @@ public class Identifier extends Token {
 		return "Identifier[symbol: \"" + symbol + "\"]";
 	}
 
+	@Override
+	public int getID() {
+		return 0;
+	}
 }

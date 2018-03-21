@@ -35,4 +35,9 @@ public class Literal extends Token {
 		return "Literal[symbol: \"" + symbol + "\"]";
 	}
 
+	@Override
+	public int getID() {
+		return 2;
+	}
+
 }
