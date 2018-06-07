@@ -1,7 +1,7 @@
 package jcla.compiler;
 
-import jcla.compiler.lang.production.token.Token;
-import jcla.compiler.lang.production.token.analyzer.LexemeAnalyzer;
+import jcla.compiler.analyzer.LexemeAnalyzer;
+import jcla.lang.production.java.token.Token;
 
 import java.util.List;
 
