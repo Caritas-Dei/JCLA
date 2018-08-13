@@ -15,29 +15,50 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production;
 
-import jcla.lang.production.Token;
+import java.util.Collections;
+import java.util.List;
 
 /**
- *
  * @author Andrew Porter
  */
-public class Keyword extends Token {
+public abstract class Token implements Production {
 
-	public Keyword(String rawString) {
-		super(rawString);
+	protected final String rawString;
+
+	public Token(String rawString) {
+		this.rawString = rawString;
 	}
 
+	@Override
+	public final List<Production> getParts() {
+		return Collections.unmodifiableList(Collections.singletonList((Production) this));
+	}
+
+	@Override
+	public CharSequence getName() {
+		return getClass().getSimpleName();
+	}
+
+	@Override
+	public final List<Token> getTokens() {
+		return Collections.unmodifiableList(Collections.singletonList(this));
+	}
+
+	@Override
+	public final boolean isToken() {
+		return true;
+	}
+
+	@Override
+	public final String getRawString() {
+		return rawString;
+	}
 
 	@Override
 	public String toString() {
-		return "Keyword[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF9);
+		return "Token[symbol: \"" + rawString + "\"]";
 	}
 
 }

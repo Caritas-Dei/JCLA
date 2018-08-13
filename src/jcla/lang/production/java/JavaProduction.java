@@ -15,29 +15,20 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
+
+import java.util.List;
 
 /**
- *
  * @author Andrew Porter
  */
-public class Keyword extends Token {
+public abstract class JavaProduction extends AbstractProduction {
 
-	public Keyword(String rawString) {
-		super(rawString);
-	}
-
-
-	@Override
-	public String toString() {
-		return "Keyword[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF9);
+	JavaProduction(List<Production> parts) {
+		super(parts);
 	}
 
 }

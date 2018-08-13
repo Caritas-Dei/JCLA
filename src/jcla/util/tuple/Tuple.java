@@ -15,29 +15,54 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
-
-import jcla.lang.production.Token;
+package jcla.util.tuple;
 
 /**
  *
  * @author Andrew Porter
  */
-public class Keyword extends Token {
+@SuppressWarnings("unchecked")
+public final class Tuple {
 
-	public Keyword(String rawString) {
-		super(rawString);
+	private CharSequence identifier;
+	private Object[] members;
+
+	public Tuple(CharSequence identifier, Object... members) {
+		this.identifier = identifier;
+		this.members = members;
 	}
 
-
-	@Override
-	public String toString() {
-		return "Keyword[symbol: \"" + rawString + "\"]";
+	public Tuple(CharSequence identifier, int size) {
+		this.identifier = identifier;
+		members = new Object[size];
 	}
 
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF9);
+	public CharSequence getIdentifier() {
+		return identifier;
+	}
+
+	public <T> T get(int object, Class<T> type) {
+		return type.cast(members[object]);
+	}
+
+	public void set(int object, Object value) {
+		members[object] = value;
+	}
+
+	public int getMemberCount() {
+		return members.length;
+	}
+
+	Object[] getMembers() {
+		return members;
+	}
+
+	void setMembers(Object[] members) {
+		this.members = members;
+	}
+
+	void setIdentifier(CharSequence identifier) {
+		this.identifier = identifier;
 	}
 
 }

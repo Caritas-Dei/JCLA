@@ -1,8 +1,25 @@
+/*
+ * Copyright (c) 2018 Andrew Porter.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
+ *  "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ *  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
+ *  conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package jcla.compiler.analyzer;
 
+import jcla.lang.production.Token;
 import jcla.lang.production.java.token.Identifier;
 import jcla.lang.production.java.token.Literal;
-import jcla.lang.production.java.token.Token;
 import jcla.lang.production.java.token.Tokens;
 
 import java.awt.event.KeyEvent;
@@ -29,7 +46,7 @@ public final class LexemeAnalyzer {
 	 * null is returned.
 	 *
 	 * @param input the input to analyze
-	 * @return a list of tokens from the input, or null if the input was a comment
+	 * @return a list of thisToken from the input, or null if the input was a comment
 	 */
 	public List<Token> analyze(String input) {
 		List<Token> tokens = new LinkedList<>(/*input.length() / 2*/);
@@ -1313,7 +1330,7 @@ public final class LexemeAnalyzer {
 	}
 
 	/**
-	 * Takes a single input as a String and identifies the token contained in it. If there are multiple tokens in the
+	 * Takes a single input as a String and identifies the token contained in it. If there are multiple thisToken in the
 	 * String, the first token will be returned.
 	 *
 	 * @param input the input to analyze
