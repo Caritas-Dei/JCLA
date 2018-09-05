@@ -27,10 +27,12 @@ import java.util.StringJoiner;
  */
 public interface Production {
 
-	List<Production> getParts();
+	Definition getDefinition();
+
+	List<? extends Production> getParts();
 
 	default List<Token> getTokens() {
-		List<Production> parts = getParts();
+		List<? extends Production> parts = getParts();
 		List<Token> tokens = new ArrayList<>(parts.size());
 
 		for (Production production : parts) {
@@ -53,6 +55,14 @@ public interface Production {
 		}
 
 		return rawString.toString();
+	}
+
+	interface Definition {
+
+		CharSequence getName();
+
+		List<? extends Definition> getPattern();
+
 	}
 
 }

@@ -15,36 +15,20 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
-
-import java.util.LinkedList;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
+public final class CharacterLiteral extends AbstractProduction {
 
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
-
-	public Identifier(String rawString) {
-		super(rawString);
-	}
+	public static final Definition DEFINITION = new Definition("CharacterLiteral");
 
 	@Override
-	public Definition getDefinition() {
-		return DEFINITION;
+	public Production.Definition getDefinition() {
+		return null;
 	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
-	}
-
 }

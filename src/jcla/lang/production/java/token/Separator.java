@@ -19,24 +19,27 @@ package jcla.lang.production.java.token;
 
 import jcla.lang.production.Token;
 
+import java.util.LinkedList;
+
 /**
- *
  * @author Andrew Porter
  */
 public class Separator extends Token {
+
+	public static final Definition DEFINITION = new JavaProduction.Definition("Separator", new LinkedList<>());
 
 	public Separator(String rawString) {
 		super(rawString);
 	}
 
 	@Override
-	public String toString() {
-		return "Separator[symbol: \"" + rawString + "\"]";
+	public Definition getDefinition() {
+		return DEFINITION;
 	}
 
 	@Override
-	public CharSequence getName() {
-		return "Separator";
+	public String toString() {
+		return "Separator[symbol: \"" + rawString + "\"]";
 	}
 
 	@Override

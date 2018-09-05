@@ -15,36 +15,33 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
 
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
+public final class NumericType extends AbstractProduction {
 
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
+	public static final Definition DEFINITION = new Definition("NumericType", List.of(new OneOf(List.of(
+			IntegralType.DEFINITION,
+			FloatingPointType.DEFINITION
+	))));
 
-	public Identifier(String rawString) {
-		super(rawString);
+	public NumericType(IntegralType type) {
+		super(List.of(type));
+	}
+
+	public NumericType(FloatingPointType type) {
+		super(List.of(type));
 	}
 
 	@Override
-	public Definition getDefinition() {
-		return DEFINITION;
+	public Production.Definition getDefinition() {
+		return null;
 	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
-	}
-
 }

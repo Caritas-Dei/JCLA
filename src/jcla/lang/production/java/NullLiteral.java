@@ -20,15 +20,15 @@ package jcla.lang.production.java;
 import jcla.lang.production.AbstractProduction;
 import jcla.lang.production.Production;
 
-import java.util.List;
-
 /**
  * @author Andrew Porter
  */
-public abstract class JavaProduction extends AbstractProduction {
+public final class NullLiteral extends AbstractProduction {
 
-	JavaProduction(List<Production> parts) {
-		super(parts);
+	public static final Definition DEFINITION = new Definition("NullLiteral");
+
+	@Override
+	public Production.Definition getDefinition() {
+		return null;
 	}
-
 }

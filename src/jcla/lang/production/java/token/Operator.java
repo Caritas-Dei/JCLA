@@ -19,14 +19,23 @@ package jcla.lang.production.java.token;
 
 import jcla.lang.production.Token;
 
+import java.util.LinkedList;
+
 /**
  *
  * @author Andrew Porter
  */
 public class Operator extends Token {
 
+	public static final Definition DEFINITION = new JavaProduction.Definition("Operator", new LinkedList<>());
+
 	public Operator(String rawString) {
 		super(rawString);
+	}
+
+	@Override
+	public Definition getDefinition() {
+		return DEFINITION;
 	}
 
 	@Override

@@ -15,36 +15,41 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
 
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
+public final class ArrayType extends AbstractProduction {
 
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
+	public static final Definition DEFINITION = new Definition("ArrayType", List.of(new OneOf(List.of(
+			PrimitiveType.DEFINITION,
+			ClassOrInterfaceType.DEFINITION,
+			TypeVariable.DEFINITION
+			)),
+			Dims.DEFINITION
+	));
 
-	public Identifier(String rawString) {
-		super(rawString);
+	public ArrayType(PrimitiveType type) {
+		super(combine(type));
+	}
+
+	public ArrayType(ClassOrInterfaceType type) {
+		super(combine(type));
+	}
+
+	public ArrayType(TypeVariable type) {
+		super(combine(type));
 	}
 
 	@Override
-	public Definition getDefinition() {
+	public Production.Definition getDefinition() {
 		return DEFINITION;
-	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
 	}
 
 }

@@ -15,36 +15,10 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
-
-import jcla.lang.production.Token;
-
-import java.util.LinkedList;
+package jcla.compiler.lang;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
-
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
-
-	public Identifier(String rawString) {
-		super(rawString);
-	}
-
-	@Override
-	public Definition getDefinition() {
-		return DEFINITION;
-	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
-	}
-
+public class MetaCompiler {
 }

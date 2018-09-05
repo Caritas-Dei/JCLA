@@ -15,36 +15,30 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
 
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
+public final class DecimalIntegerLiteral extends AbstractProduction {
 
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
+	public static final Definition DEFINITION = new Definition("DecimalIntegerLiteral", DecimalNumeral.DEFINITION, new Definition.ZeroOrMore(IntegerTypeSuffix.DEFINITION));
 
-	public Identifier(String rawString) {
-		super(rawString);
+	public DecimalIntegerLiteral(DecimalNumeral numeral) {
+		super(List.of(numeral));
+	}
+
+	public DecimalIntegerLiteral(DecimalNumeral numeral, IntegerTypeSuffix suffix) {
+		super(List.of(numeral, suffix));
 	}
 
 	@Override
-	public Definition getDefinition() {
-		return DEFINITION;
+	public Production.Definition getDefinition() {
+		return null;
 	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
-	}
-
 }

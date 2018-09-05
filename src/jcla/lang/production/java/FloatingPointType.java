@@ -15,36 +15,32 @@
  * SOFTWARE.
  */
 
-package jcla.lang.production.java.token;
+package jcla.lang.production.java;
 
-import jcla.lang.production.Token;
+import jcla.lang.production.AbstractProduction;
+import jcla.lang.production.Production;
+import jcla.lang.production.java.token.Keyword;
 
-import java.util.LinkedList;
+import java.util.List;
+
+import static jcla.lang.production.java.token.Tokens.*;
 
 /**
  * @author Andrew Porter
  */
-public class Identifier extends Token {
+public final class FloatingPointType extends AbstractProduction {
 
-	public static final Definition DEFINITION = new JavaProduction.Definition("Identifier", new LinkedList<>());
+	public static final Definition DEFINITION = new Definition("FloatingPointType", List.of(
+			FLOAT.getDefinition(),
+			DOUBLE.getDefinition()
+	));
 
-	public Identifier(String rawString) {
-		super(rawString);
+	public FloatingPointType(Keyword floatOrDoubleType) {
+		super(List.of(floatOrDoubleType));
 	}
 
 	@Override
-	public Definition getDefinition() {
+	public Production.Definition getDefinition() {
 		return DEFINITION;
 	}
-
-	@Override
-	public String toString() {
-		return "Identifier[symbol: \"" + rawString + "\"]";
-	}
-
-	@Override
-	public int hashCode() {
-		return (super.hashCode() & 0xFFFF_FFF8);
-	}
-
 }

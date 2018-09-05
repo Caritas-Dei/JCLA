@@ -18,8 +18,9 @@
 package jcla.lang.production.search;
 
 import jcla.lang.production.Production;
+import jcla.lang.production.Production.Definition;
 import jcla.lang.production.Token;
-import jcla.lang.production.search.error.EndOfBranchException;
+import jcla.lang.production.java.token.Tokens;
 
 import java.util.List;
 import java.util.function.Function;
@@ -39,18 +40,18 @@ public class ProductionLookupTable {
 		roots[4] = new Node();
 	}
 
-	public void add(Production production) {
-		List<Token> tokens = production.getTokens();
-
-		Node node = roots[tokens.get(0).];
+	public void add(Definition definition) {
+		List<Definition> pattern = definition.getPattern();
+		int tokenID;
+		Node node = roots[tokenID = Tokens.getID(tokens.get(0))];
 		int size = tokens.size();
 
 		for (int i = 1; i < size - 1; i++) {
 			Token current = tokens.get(i);
-			node.setBranch(current.getID(), node = new Node(node));
+			node.setBranch(tokenID, node = new Node(node));
 		}
 
-		node.setBranch(size - 1, new Node(node, (pattern) -> production.build(pattern))); // set the last Node to return the Production
+		node.setBranch(size - 1, new Node(node)); // set the last Node to return the Production
 
 	}
 
@@ -63,17 +64,9 @@ public class ProductionLookupTable {
 
 		protected final Node parent;
 		protected final Node[] branches = new Node[5];
-		protected final Function<Token[], Production> builder;
-
-		Node(Node parent, Function<Token[], Production> builder) {
-			this.parent = parent;
-			this.builder = builder;
-		}
 
 		Node(Node parent) {
-			this(parent, (tokens) -> {
-				throw new EndOfBranchException();
-			});
+			this.parent = parent;
 		}
 
 		/**
@@ -89,10 +82,6 @@ public class ProductionLookupTable {
 
 		void setBranch(int index, Node node) {
 			branches[index] = node;
-		}
-
-		Production production(Token[] tokens) {
-			return builder.apply(tokens);
 		}
 
 	}

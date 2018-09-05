@@ -1185,9 +1185,9 @@ public final class LexemeAnalyzer {
 								//  - a type context must have a valid type which usually is in a package, hence the dot
 								//  - a type context must be surrounded by angle brackets
 								Token last = tokens.get(tokens.size() - 1);
-								String secondToLast = tokens.get(tokens.size() - 2).getSymbol();
+								String secondToLast = tokens.get(tokens.size() - 2).getRawString();
 								// first check if last token is an IDENTIFIER
-								if ((last instanceof Identifier || last.getSymbol().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
+								if ((last instanceof Identifier || last.getRawString().equals("?")) && (secondToLast.equals("<") || secondToLast.equals(",") || secondToLast.equals("."))) {
 									// offset from the current index into 'in'
 									int offset = 0;
 									try {

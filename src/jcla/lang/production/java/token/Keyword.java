@@ -19,16 +19,27 @@ package jcla.lang.production.java.token;
 
 import jcla.lang.production.Token;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- *
  * @author Andrew Porter
  */
-public class Keyword extends Token {
+public final class Keyword extends Token {
+
+	public static final Definition DEFINITION = new JavaProduction.Definition("Keyword", new LinkedList<>());
+
+	private final Definition definition;
 
 	public Keyword(String rawString) {
 		super(rawString);
+		definition = new Definition(rawString, List.of(DEFINITION));
 	}
 
+	@Override
+	public Definition getDefinition() {
+		return definition;
+	}
 
 	@Override
 	public String toString() {

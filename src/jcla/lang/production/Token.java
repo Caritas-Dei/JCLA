@@ -23,22 +23,18 @@ import java.util.List;
 /**
  * @author Andrew Porter
  */
-public abstract class Token implements Production {
+public abstract class Token extends AbstractProduction {
 
 	protected final String rawString;
 
 	public Token(String rawString) {
+		super(null);
 		this.rawString = rawString;
 	}
 
 	@Override
 	public final List<Production> getParts() {
 		return Collections.unmodifiableList(Collections.singletonList((Production) this));
-	}
-
-	@Override
-	public CharSequence getName() {
-		return getClass().getSimpleName();
 	}
 
 	@Override

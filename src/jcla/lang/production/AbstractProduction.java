@@ -24,14 +24,14 @@ import java.util.List;
  */
 public abstract class AbstractProduction implements Production {
 
-	protected final List<Production> parts;
+	protected final List<? extends Production> parts;
 
-	protected AbstractProduction(List<Production> parts) {
+	protected AbstractProduction(List<? extends Production> parts) {
 		this.parts = parts;
 	}
 
 	@Override
-	public List<Production> getParts() {
+	public List<? extends Production> getParts() {
 		return parts;
 	}
 
